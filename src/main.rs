@@ -25,7 +25,7 @@ macro_rules! sentence {
         {
             let mut v = vec![];
             $(
-                v.push(Terminal(stringify!($i).to_owned()));
+                v.push(Terminal(stringify!($i)));
             )*
             v
         }
@@ -118,9 +118,9 @@ mod tests {
                 Rule {
                     name: "S".to_owned(),
                     production: vec![
-                        Terminal("a".to_owned()),
+                        Terminal("a"),
                         NonTerminal("S".to_owned()),
-                        Terminal("b".to_owned()),
+                        Terminal("b"),
                     ]
                 },
                 Rule {
@@ -140,29 +140,32 @@ mod tests {
         assert!(g.parse(sentence!(a,a,b,b,b)).is_err());
     }
 
-    // #[test]
-    // fn test_complex1() {
-    //     let g = Grammar {
-    //         start: "S".to_owned(),
-    //         rules: vec![
-    //             Rule {
-    //                 name: "S".to_owned(),
-    //                 production: vec![
-    //                     Terminal("a". to_owned()),
-    //                     Terminal("a". to_owned()),
-    //                     NonTerminal("S". to_owned()),
-    //                 ]
-    //             },
-    //             Rule {
-    //                 name: "S".to_owned(),
-    //                 production: vec![
-    //                     Terminal("a".to_owned()),
-    //                     Epsilon,
-    //                 ]
-    //             }
-    //         ]
-    //     };
+    #[test]
+    fn test_complex1() {
+        // S -> .
+        // S -> a S b S .
+        let g = Grammar {
+            start: "S".to_owned(),
+            rules: vec![
+                Rule {
+                    name: "S".to_owned(),
+                    production: vec![
+                        Terminal("a"),
+                        Terminal("a"),
+                        NonTerminal("S".to_owned()),
+                    ]
+                },
+                Rule {
+                    name: "S".to_owned(),
+                    production: vec![
+                        Terminal("a"),
+                        Epsilon,
+                    ]
+                }
+            ]
+        };
 
-    //     g.parse(sentence!(a,a,a)).unwrap();
-    // }
+        g.parse(sentence!(a,a,a)).unwrap();
+    }
+
 }
