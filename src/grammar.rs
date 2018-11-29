@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::hash::Hash;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
     name: String,
     production: Vec<Token<T>>,
@@ -13,7 +13,7 @@ struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
 struct Grammar<T: Debug + Clone + PartialEq + Hash + Eq> {
     start: String,
     rules: Vec<Rule<T>>,
-    first_set: Option<HashMap<String, Vec<(Token<T>, Rule<T>)>>>,
+    first_sets: Option<HashMap<String, HashSet<(Token<T>, Rule<T>)>>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
@@ -39,11 +39,11 @@ macro_rules! sentence {
 impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
 
     fn new(start: String, rules: Vec<Rule<T>>) -> Self {
-        let first_set = None;
+        let first_sets = None;
         Self {
             start,
             rules,
-            first_set
+            first_sets
         }
     }
 
@@ -53,8 +53,11 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
             let name = rule.name.clone();
             let first_set_for_rule = self.first_set(&name);
             // check first set clashes
+            // println!("{}--------------", name);
+            // println!("{:?}", first_set_for_rule);
             let mut temp_dedup = HashSet::new();
             for (tok,_) in &first_set_for_rule {
+                // println!("tok: {:?}", tok);
                 if temp_dedup.contains(tok) {
                     return Err("First/First clash");
                 }
@@ -63,7 +66,7 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
             temp.insert(name, first_set_for_rule);
         }
 
-        self.first_set = Some(temp);
+        self.first_sets = Some(temp);
 
         Ok(())
     }
@@ -80,17 +83,24 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
 
     fn parse_aux(&self, name: &str, sent: &mut Vec<Token<T>>) -> Result<(), &'static str> {
         let mut sent = sent;
-        let first_set = self.first_set(name);
+        let firsts = self.first_sets.as_ref().map(|i|i.get(name).unwrap()).unwrap();
         println!("Parsing rule {} with {:?}", name, sent);
-        if sent.is_empty() { return Err("Does not parse"); }
-        let rule = first_set.iter().find(|prod|prod.0 == sent[0]);
-        let mut prod = match rule {
-            Some(i) => i.1.production.clone(),
-            None => // match epsilon
-                match first_set.iter().find(|prod| prod.0 == Epsilon) {
-                    None => { return Err("Incomplete"); }
-                    Some((_,i)) => i.production.clone(),
-                }
+
+        let mut prod = if sent.is_empty() {
+            match firsts.iter().find(|prod| prod.0 == Epsilon) {
+                None => { return Err("Does not contain epsilon. 1"); }
+                Some((_,i)) => i.production.clone(),
+            }
+        } else {
+            let rule = firsts.iter().find(|prod|prod.0 == sent[0]);
+            match rule {
+                Some(i) => i.1.production.clone(),
+                None => // match epsilon
+                    match firsts.iter().find(|prod| prod.0 == Epsilon) {
+                        None => { return Err("Does not contain epsilon. 2"); }
+                        Some((_,i)) => i.production.clone(),
+                    }
+            }
         };
         println!("Found: {:?}", prod);
         self.match_rule(&mut sent, &mut prod)
@@ -121,19 +131,18 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
         Ok(())
     }
 
-    fn first_set(&self, name: &str) -> Vec<(Token<T>, Rule<T>)> {
-        let mut ret = vec![];
+    fn first_set(&self, name: &str) -> HashSet<(Token<T>, Rule<T>)> {
+        let mut ret = HashSet::new();
         for rule in &self.rules {
             if rule.name != name {
                 continue;
             }
             // this is incorrect...
             let first_tok = rule.production[0].clone();
-            let first = match first_tok {
-                Terminal(_) | Epsilon => vec![(first_tok, rule.clone())],
-                NonTerminal(s) => self.first_set(&s),
+            match first_tok {
+                Terminal(_) | Epsilon => {ret.insert((first_tok, rule.clone()));}
+                NonTerminal(s) => ret.extend(self.first_set(&s)),
             };
-            ret.extend(first);
         }
         ret
     }
@@ -204,8 +213,95 @@ mod tests {
     }
 
     #[test]
-    fn test_abc() {
+    fn test_ab() {
+        // Grammar:
+        // S -> a A b B.
+        // A -> a A .
+        // B -> b B .
+        // A -> .
+        // B -> .
 
+        let mut g = Grammar::new("S".to_owned(),
+            vec![
+                Rule {
+                    name: "S".to_owned(),
+                    production: vec![
+                        Terminal("a"),
+                        NonTerminal("A".to_owned()),
+                        Terminal("b"),
+                        NonTerminal("B".to_owned()),
+                    ]
+                },
+                Rule {
+                    name: "A".to_owned(),
+                    production: vec![
+                        Terminal("a"),
+                        NonTerminal("A".to_owned()),
+                    ]
+                },
+                Rule {
+                    name: "B".to_owned(),
+                    production: vec![
+                        Terminal("b"),
+                        NonTerminal("B".to_owned()),
+                    ]
+                },
+                Rule {
+                    name: "A".to_owned(),
+                    production: vec![
+                        Epsilon,
+                    ]
+                },
+                Rule {
+                    name: "B".to_owned(),
+                    production: vec![
+                        Epsilon,
+                    ]
+                },
+            ]
+        );
+
+        g.build().unwrap();
+        g.parse(sentence!(a, b)).unwrap();
+
+        assert!(g.parse(sentence!(a, b)).is_ok());
+        assert!(g.parse(sentence!(a, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, b)).is_ok());
+        assert!(g.parse(sentence!(a, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, b)).is_ok());
+        assert!(g.parse(sentence!(a, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, b)).is_ok());
+        assert!(g.parse(sentence!(a, b, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, a, b)).is_ok());
+        assert!(g.parse(sentence!(a, b, b, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, b, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, a, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, a, a, b)).is_ok());
+        assert!(g.parse(sentence!(a, b, b, b, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, b, b, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, b, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, a, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, a, a, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, a, a, a, a, a, b)).is_ok());
+        assert!(g.parse(sentence!(a, b, b, b, b, b, b, b, b)).is_ok());
+        assert!(g.parse(sentence!(a, a, b, b, b, b, b, b, b)).is_ok());
+
+
+        assert!(g.parse(sentence!(a, a)).is_err());
+
+    }
+
+    #[test]
+    fn test_abc() {
         // Grammar:
         // S -> a A .
         // A -> a A .
