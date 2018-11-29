@@ -1,6 +1,5 @@
+#[macro_use]
 mod grammar;
-
-
 
 extern crate ggez;
 extern crate rand;
