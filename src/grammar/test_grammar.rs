@@ -160,36 +160,7 @@ fn test_abc() {
     // C -> .
 
     // Example:
-    // a c
-    // a a c
-    // a b c
-    // a a a c
-    // a a b c
-    // a b b c
-    // a a a a c
-    // a a a b c
-    // a a b b c
-    // a b b b c
-    // a a a a a c
-    // a a a a b c
-    // a a a b b c
-    // a a b b b c
-    // a b b b b c
-    // a a a a a a c
-    // a a a a a b c
-    // a a a a b b c
-    // a a a b b b c
-    // a a b b b b c
-    // a b b b b b c
-    // a a a a a a a c
-    // a a a a a a b c
-    // a a a a a b b c
-    // a a a a b b b c
-    // a a a b b b b c
-    // a a b b b b b c
-    // a b b b b b b c
-    // a a a a a a a a c
-    // a a a a a a a b c
+    // TODO:
 
     let mut g = Grammar::new(
         "S".to_owned(),

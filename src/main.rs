@@ -1,4 +1,3 @@
-//!
 //! Save WackDonald's from bankrupcy by putting your compiler construction skills to good use.
 //!
 //! The famouse burger chain is entering the catering space. Help rewrite the recipes with clear and concise grammar.
@@ -7,111 +6,73 @@
 mod grammar;
 mod burger;
 mod animation;
-
-extern crate ggez;
-
-use ggez::conf;
-use ggez::timer;
-use ggez::event::{self, MouseButton, MouseState};
-use ggez::graphics;
-use ggez::{Context, GameResult};
-use std::env;
-use std::path;
+mod prelude;
+use crate::prelude::*;
 use self::animation::Animation;
 
+extern crate quicksilver;
+
 struct MainState {
-    image1: graphics::Image,
-    animation: Animation,
-    pos_x: i32,
-    pos_y: i32,
-    mouse_down: bool,
+    animation: Asset<Animation>,
+    font: Asset<Image>,
+    pos_x: f32,
+    pos_y: f32,
+    // mouse_down: bool,
 }
 
-impl MainState {
-    fn new(ctx: &mut Context) -> MainState {
-        let mut image1 = graphics::Image::new(ctx, "/lettuce.png").unwrap();
-        image1.set_filter(graphics::FilterMode::Nearest);
-        let animation = Animation::new(ctx, "/cut bread.png", 96, 2.);
-        MainState {
-            image1,
-            animation,
-            pos_x: 100,
-            pos_y: 100,
-            mouse_down: false,
-        }
+
+impl State for MainState {
+    fn new() -> Result<MainState> {
+        let animation = Asset::new(Animation::new("cutbread.png", 96, 1.2));
+        let font = Asset::new(Font::load("fonts/CourierPrime.ttf")
+            .and_then(|font| {
+                let style = FontStyle::new(72.0, Color::BLACK);
+                result(font.render("Sample Text", &style))
+            }));
+
+        let pos_x = 0.;
+        let pos_y = 0.;
+        Ok(MainState { font, animation, pos_x, pos_y, })
     }
-}
 
-impl event::EventHandler for MainState {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
+    fn update(&mut self, window: &mut Window) -> Result<()> {
+        self.animation.execute(|anim| anim.update(window) )
+    }
+
+    fn draw(&mut self, window: &mut Window) -> Result<()> {
+        window.clear(Color::MAGENTA)?;
+        let pos_x = self.pos_x;
+        let pos_y = self.pos_y;
+        self.animation.execute(|anim| {
+            anim.draw(window, pos_x, pos_y, 3.);
+            Ok(())
+        })?;
+
+        self.font.execute(|image| {
+            window.draw(&image.area().with_center((400, 300)), Img(&image));
+            Ok(())
+        })?;
+
+        Ok(())
+
+    }
+
+    fn event(&mut self, event: &Event, _window: &mut Window) -> Result<()> {
+        match event {
+            Event::MouseButton(
+                MouseButton::Left,
+                ButtonState::Pressed
+            ) =>
+                self.animation.execute(|anim|anim.play())?,
+            _ => (),
+        }
         Ok(())
     }
-
-    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        graphics::clear(ctx);
-        self.animation.update(ctx);
-
-        // let dst = graphics::Point2::new(self.pos_x as f32, self.pos_y as f32);
-        // let scale = graphics::Point2::new(5., 5.);
-        // graphics::draw_ex(ctx, &self.image1, DrawParam {
-        //     dest: dst,
-        //     rotation: 0.,
-        //     scale,
-        //     ..Default::default()
-        // })?;
-        self.animation.draw(ctx, self.pos_x as f32, self.pos_y as f32);
-
-        graphics::present(ctx);
-        timer::yield_now();
-        Ok(())
-    }
-
-    fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
-        self.mouse_down = true;
-        self.animation.play();
-    }
-
-    fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
-        self.mouse_down = false;
-    }
-
-    fn mouse_motion_event(
-        &mut self,
-        _ctx: &mut Context,
-        _state: MouseState,
-        x: i32,
-        y: i32,
-        xrel: i32,
-        yrel: i32,
-    ) {
-        if self.mouse_down {
-            self.pos_x = x;
-            self.pos_y = y;
-        }
-    }
 }
 
-pub fn main() {
-    let c = conf::Conf {
-        window_setup: conf::WindowSetup {
-            title: "Game".to_owned(),
-            resizable: false,
-            allow_highdpi: true,
-            samples: conf::NumSamples::One,
-            ..Default::default()
-        },
-        ..Default::default()
-    };
-    let mut ctx = &mut Context::load_from_conf("input_test", "ggez", c).unwrap();
-
-    // We add the CARGO_MANIFEST_DIR/resources to the filesystem paths so
-    // that ggez will look in our cargo project directory for files.
-    if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-        let mut path = path::PathBuf::from(manifest_dir);
-        path.push("resources");
-        ctx.filesystem.mount(&path, true);
-    }
-
-    let state = &mut MainState::new(&mut ctx);
-    event::run(ctx, state).unwrap();
+fn main() {
+    run::<MainState>("Image Example", Vector::new(800, 600), Settings {
+        // icon_path: Some("image.png"), // Set the window icon
+        ..Settings::default()
+    });
 }

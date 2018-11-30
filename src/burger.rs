@@ -1,4 +1,4 @@
-use crate::grammar::Token;
+use crate::grammar::parser::Token;
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum Ingredient {
