@@ -1,3 +1,8 @@
+//!
+//! Save WackDonald's from bankrupcy by putting your compiler construction skills to good use.
+//!
+//! The famouse burger chain is entering the catering space. Help rewrite the recipes with clear and concise grammar.
+
 #[macro_use]
 mod grammar;
 mod burger;

@@ -153,9 +153,11 @@ fn test_abc() {
     // Grammar:
     // S -> a A .
     // A -> a A .
-    // A -> B .
-    // B -> c .
+    // A -> b B .
     // B -> b B .
+    // B -> c C .
+    // C -> c C .
+    // C -> .
 
     // Example:
     // a c
