@@ -4,20 +4,20 @@ use std::fmt::Debug;
 use std::hash::Hash;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
+pub struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
     name: String,
     production: Vec<Token<T>>,
 }
 
 #[derive(Clone, Debug)]
-struct Grammar<T: Debug + Clone + PartialEq + Hash + Eq> {
+pub struct Grammar<T: Debug + Clone + PartialEq + Hash + Eq> {
     start: String,
     rules: Vec<Rule<T>>,
     first_sets: Option<HashMap<String, HashSet<(Token<T>, Rule<T>)>>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
-enum Token<T: Debug + Clone + PartialEq + Hash + Eq> {
+pub enum Token<T: Debug + Clone + PartialEq + Hash + Eq> {
     Terminal(T),
     Epsilon,
     NonTerminal(String),
@@ -38,7 +38,7 @@ macro_rules! sentence {
 
 impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
 
-    fn new(start: String, rules: Vec<Rule<T>>) -> Self {
+    pub fn new(start: String, rules: Vec<Rule<T>>) -> Self {
         let first_sets = None;
         Self {
             start,

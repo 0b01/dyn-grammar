@@ -1,5 +1,6 @@
 #[macro_use]
 mod grammar;
+mod burger;
 
 extern crate ggez;
 extern crate rand;
