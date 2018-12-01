@@ -197,6 +197,11 @@ impl Burger {
 
         Ok(())
     }
+
+    pub fn as_token(&self) -> Vec<Token<BurgerItem>> {
+        return self.toks.clone();
+    }
+
 }
 
 pub struct BurgerAnimSeq {

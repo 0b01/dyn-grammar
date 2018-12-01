@@ -244,7 +244,7 @@ impl MainState {
                         ),
                         Img(&img),
                         Transform::scale(Vector::new(3., 3.)),
-                        100,
+                        101,
                     );
                 }
                 Ok(())
@@ -275,10 +275,10 @@ impl State for MainState {
         let pos_y = 0.;
 
         let mut grams = Vec::new();
-        grams.push(GameGrammar::new(Vector::new(45., 20.)));
-        grams.push(GameGrammar::new(Vector::new(152, 20)));
-        grams.push(GameGrammar::new(Vector::new(45., 310)));
-        grams.push(GameGrammar::new(Vector::new(152, 310)));
+        grams.push(GameGrammar::new(Vector::new(45., 20.  ), 0));
+        grams.push(GameGrammar::new(Vector::new(152., 20. ), 1));
+        grams.push(GameGrammar::new(Vector::new(45., 310. ), 2));
+        grams.push(GameGrammar::new(Vector::new(152., 310.), 3));
 
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
@@ -328,8 +328,6 @@ impl State for MainState {
                 ButtonState::Pressed
             ) => {
 
-                let burger_seq = self.burger_seq.clone();
-
                 let v = window.mouse().pos();
 
                 println!("{:?}", v);
@@ -338,11 +336,18 @@ impl State for MainState {
 
                 self.holding = start_drag_item(&v);
                 self.play_pressed = play_pressed(&v);
+
+                let burger_seq = self.burger_seq.clone();
+                let game = self.game.clone();
                 if self.play_pressed {
-                    self.ingredients.execute(|i|
-                        burger_seq.borrow_mut().step(i)
+                    self.ingredients.execute(|i| {
+                        burger_seq.borrow_mut().step(i)?;
+                        let mut g = game.borrow().as_grammar();
+                        g.build().unwrap();
+                        println!("{:#?}", g);
+                        Ok(())
                         // burger_seq.borrow_mut().cont(i)
-                    )?;
+                    })?;
                 }
                 self.mouse_down = true;
             }
@@ -371,12 +376,6 @@ impl State for MainState {
         }
         Ok(())
     }
-}
-
-struct Dropzone;
-
-fn drop_zone(mouse: &Vector) -> Option<Dropzone> {
-    unimplemented!()
 }
 
 fn play_pressed(mouse: &Vector) -> bool {

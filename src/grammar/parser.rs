@@ -1,4 +1,5 @@
 use self::Token::*;
+use crate::grammar::abt::AbstractBurgerTree;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -6,6 +7,7 @@ use std::hash::Hash;
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
     pub name: String,
+    pub id: u32,
     pub production: Vec<Token<T>>,
 }
 
@@ -21,18 +23,6 @@ pub enum Token<T: Debug + Clone + PartialEq + Hash + Eq> {
     Terminal(T),
     Epsilon,
     NonTerminal(String),
-}
-
-macro_rules! sentence {
-    ($($i: ident),*) => {
-        {
-            let mut v = vec![];
-            $(
-                v.push(Terminal(stringify!($i)));
-            )*
-            v
-        }
-    };
 }
 
 
@@ -71,48 +61,50 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
         Ok(())
     }
 
-    fn parse(&self, sent: Vec<Token<T>>) -> Result<(), &'static str> {
+    pub fn parse(&self, sent: Vec<Token<T>>) -> Result<AbstractBurgerTree<T>, &'static str> {
         let mut sent = sent;
-        self.parse_aux(&self.start, &mut sent)?;
+        let ret = self.parse_aux(&self.start, &mut sent)?;
         if sent.is_empty() {
-            return Ok(())
+            return Ok(ret);
         } else {
             return Err("Incomplete parse")
         }
     }
 
-    fn parse_aux(&self, name: &str, sent: &mut Vec<Token<T>>) -> Result<(), &'static str> {
+    fn parse_aux(&self, name: &str, sent: &mut Vec<Token<T>>) -> Result<AbstractBurgerTree<T>, &'static str> {
         let mut sent = sent;
         let firsts = self.first_sets.as_ref().map(|i|i.get(name).unwrap()).unwrap();
         println!("Parsing rule {} with {:?}", name, sent);
 
-        let mut prod = if sent.is_empty() {
+        let (mut prod, rule_id) = if sent.is_empty() {
             match firsts.iter().find(|prod| prod.0 == Epsilon) {
                 None => { return Err("Does not contain epsilon. 1"); }
-                Some((_,i)) => i.production.clone(),
+                Some((_,i)) => (i.production.clone(), i.id),
             }
         } else {
             let rule = firsts.iter().find(|prod|prod.0 == sent[0]);
             match rule {
-                Some(i) => i.1.production.clone(),
+                Some(i) => (i.1.production.clone(), i.1.id),
                 None => // match epsilon
                     match firsts.iter().find(|prod| prod.0 == Epsilon) {
                         None => { return Err("Does not contain epsilon. 2"); }
-                        Some((_,i)) => i.production.clone(),
+                        Some((_,i)) => (i.production.clone(), i.id),
                     }
             }
         };
         println!("Found: {:?}", prod);
-        self.match_rule(&mut sent, &mut prod)
+        self.match_rule(&mut sent, &mut prod, rule_id)
     }
 
-    fn match_rule(&self, sent: &mut Vec<Token<T>>, rule: &mut Vec<Token<T>>) -> Result<(), &'static str> {
+    fn match_rule(&self, sent: &mut Vec<Token<T>>, rule: &mut Vec<Token<T>>, rule_id: u32) -> Result<AbstractBurgerTree<T>, &'static str> {
+        let mut ret = vec![];
         while let Some(t) = rule.get(0) {
             let t = t.clone();
             rule.remove(0);
-            match t {
+            let abt = match t {
                 Epsilon => {
                     println!("Matching Epsilon");
+                    AbstractBurgerTree::Term(Epsilon)
                 }
                 Terminal(ref term) => {
                     println!("Matching {:?}", term);
@@ -123,12 +115,14 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
                     } else {
                         return Err("2")
                     }
+                    AbstractBurgerTree::Term(t)
                 }
                 NonTerminal(s) => self.parse_aux(&s, sent)?
-            }
+            };
+            ret.push(Box::new(abt));
         }
 
-        Ok(())
+        Ok(AbstractBurgerTree::NonTerm((rule_id, ret)))
     }
 
     fn first_set(&self, name: &str) -> HashSet<(Token<T>, Rule<T>)> {
@@ -146,4 +140,5 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
         }
         ret
     }
+
 }

@@ -14,6 +14,7 @@ pub struct GameGrammar {
     pub name: BurgerItem,
     pub items: [BurgerItem; 5],
     pub top_left: Vector,
+    pub id: u32,
 }
 
 pub struct Game {
@@ -21,11 +22,12 @@ pub struct Game {
 }
 
 impl GameGrammar {
-    pub fn new(top_left: Vector) -> Self {
+    pub fn new(top_left: Vector, id: u32) -> Self {
         Self {
             name: None,
             items: [None; 5],
             top_left,
+            id,
         }
     }
 
@@ -111,6 +113,7 @@ impl GameGrammar {
         Some(Rule {
             name: self.name.to_str().to_owned(),
             production,
+            id: self.id,
         })
 
     }
