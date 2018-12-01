@@ -3,6 +3,7 @@
 //! The famouse burger chain is entering the catering space. Help rewrite the recipes with clear and concise grammar.
 
 #![allow(non_snake_case)]
+#![allow(dead_code)]
 
 #[macro_use]
 mod grammar;
@@ -14,8 +15,6 @@ use crate::prelude::*;
 use self::animation::Animation;
 use self::ingredients::{Ingredients, IngredientAnimations};
 use self::burger::{BurgerItem, Burger};
-
-const SCALE: f32 = 3.75;
 
 extern crate quicksilver;
 
@@ -407,6 +406,7 @@ fn start_drag_item(mouse: &Vector) -> Option<BurgerItem> {
 
         ((            init_x, 1. * line_h + init_y, 400., 1. * line_h + fin_y), BottomBun),
         ((1. * 100. + init_x, 1. * line_h + init_y, 500., 1. * line_h + fin_y), Chicken),
+        ((2. * 100. + init_x, 1. * line_h + init_y, 600., 1. * line_h + fin_y), Lettuce),
 
         ((            init_x, 2. * line_h + init_y, 400., 2. * line_h + fin_y), NonTermS),
         ((1. * 100. + init_x, 2. * line_h + init_y, 500., 2. * line_h + fin_y), NonTermA),

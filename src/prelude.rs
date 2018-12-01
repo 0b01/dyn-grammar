@@ -1,6 +1,6 @@
 use quicksilver;
 
-pub use crate::ingredients::Ingredients;
+pub use crate::ingredients::{Ingredients, IngredientAnimations};
 pub use crate::animation::Animation;
 
 pub use quicksilver::{
@@ -13,3 +13,5 @@ pub use quicksilver::{
     lifecycle::{Asset, Settings, State, Event, Window, run},
     input::{ButtonState, MouseButton},
 };
+
+pub const SCALE: f32 = 3.75;

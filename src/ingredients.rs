@@ -10,7 +10,7 @@ impl Ingredients {
     pub fn srcs() -> Vec<&'static str> {
         vec![
             "top_bun", "fish", "onion", "beef_patty", "cheese",
-            "bottom_bun", "chicken",
+            "bottom_bun", "chicken", "lettuce"
         ]
     }
 
