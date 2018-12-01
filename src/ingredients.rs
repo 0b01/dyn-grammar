@@ -99,7 +99,7 @@ impl Ingredients {
 
     pub fn draw_anim(&mut self, window: &mut Window, pos_x: f32, pos_y: f32, scale: f32) -> Result<()> {
         for i in self.anims.values_mut() {
-            i.draw(window, pos_x, pos_y, SCALE);
+            i.draw(window, pos_x, pos_y, scale);
         }
         Ok(())
     }

@@ -316,7 +316,7 @@ impl State for MainState {
         self.ingredients.execute(|ingr|{
             burger_seq.borrow_mut().draw(window, ingr)?;
             Ok(())
-        });
+        })?;
 
 
         // self.burger.draw(window, &mut self.ingredients)?;
@@ -333,9 +333,12 @@ impl State for MainState {
             ) => {
 
                 let burger_seq = self.burger_seq.clone();
+
+
                 self.ingredients.execute(|i|
-                    burger_seq.borrow_mut().step(i)
-                );
+                    // burger_seq.borrow_mut().step(i)
+                    burger_seq.borrow_mut().cont(i)
+                )?;
 
                 self.mouse_down = true;
                 self.init_down = true;

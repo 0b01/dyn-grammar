@@ -176,7 +176,7 @@ impl Burger {
                         ),
                         Img(&img),
                         Transform::scale(Vector::new(3., 3.)),
-                        i as u32,
+                        10 + i as u32,
                     );
                 }
             }
@@ -217,7 +217,7 @@ impl BurgerAnimSeq {
     ) -> Result<()> {
 
         let dy = 13.;
-        ingredients.draw_anim(window, 565., 190. - self.idx as f32 * dy, 2.)?;
+        ingredients.draw_anim(window, 561., 210. - self.idx as f32 * dy, 3.)?;
 
         if self.drawing.is_some() {
             let anim = self.drawing.as_ref().unwrap().to_anim_str();
@@ -227,7 +227,7 @@ impl BurgerAnimSeq {
                 self.static_idx += 1;
                 self.drawing = None;
                 if self.play_continuous {
-                    self.idx += 1;
+                    self.step(ingredients);
                 }
             }
         }
@@ -242,17 +242,15 @@ impl BurgerAnimSeq {
     ) -> Result<()> {
         if let Token::Terminal(itm) = &self.burger.toks[self.idx] {
             self.drawing = Some(itm.clone());
-
             let anim = itm.to_anim_str();
             ingr.get_anim_mut(anim).unwrap().play()?;
         }
-
 
         self.idx += 1;
         Ok(())
     }
 
-    pub fn continuous_play(
+    pub fn cont(
         &mut self,
         ing: &mut Ingredients,
     ) -> Result<()> {
