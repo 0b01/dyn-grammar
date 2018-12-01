@@ -19,12 +19,6 @@ use self::burger::{BurgerItem, Burger};
 extern crate quicksilver;
 
 struct MainState {
-    S: Asset<Image>,
-    A: Asset<Image>,
-    B: Asset<Image>,
-    C: Asset<Image>,
-    Epsilon: Asset<Image>,
-
     ingredients: Asset<Ingredients>,
 
     game_ui: Asset<Image>,
@@ -37,8 +31,8 @@ struct MainState {
     pos_y: f32,
     holding: Option<BurgerItem>,
     mouse_down: bool,
-    init_down: bool,
-    init_up: bool,
+
+    play_pressed: bool,
 }
 
 impl MainState {
@@ -49,76 +43,40 @@ impl MainState {
             let pos_y = self.pos_y - 16.;
             let item = self.holding.as_ref().unwrap().to_str();
 
+            macro_rules! ing {
+                ($name: expr) => {
+                    self.ingredients.execute(|ing| {
+                        let img = ing.get_img($name).unwrap();
+                        window.draw_ex(&
+                            Rectangle::new(
+                                Vector::new(pos_x, pos_y),
+                                Vector::new(32., 32.)
+                            ),
+                            Img(&img),
+                            Transform::scale(Vector::new(3., 3.)),
+                            1000,
+                        );
+                        Ok(())
+                    })?;
+
+                };
+            }
+
             match self.holding.as_ref().unwrap() {
                 BurgerItem::NonTermA => {
-                    self.A.execute(|image| {
-                        window.draw_ex(&
-                            Rectangle::new(
-                                Vector::new(pos_x, pos_y),
-                                Vector::new(32., 32.)
-                            ),
-                            Img(&image),
-                            Transform::scale(Vector::new(3., 3.)),
-                            1000,
-                        );
-                        Ok(())
-                    })?;
+                    ing!("nontermA");
                 },
                 BurgerItem::NonTermB => {
-                    self.B.execute(|image| {
-                        window.draw_ex(&
-                            Rectangle::new(
-                                Vector::new(pos_x, pos_y),
-                                Vector::new(32., 32.)
-                            ),
-                            Img(&image),
-                            Transform::scale(Vector::new(3., 3.)),
-                            1000,
-                        );
-                        Ok(())
-                    })?;
+                    ing!("nontermB");
                 }
                 BurgerItem::NonTermC => {
-                    self.C.execute(|image| {
-                        window.draw_ex(&
-                            Rectangle::new(
-                                Vector::new(pos_x, pos_y),
-                                Vector::new(32., 32.)
-                            ),
-                            Img(&image),
-                            Transform::scale(Vector::new(3., 3.)),
-                            1000,
-                        );
-                        Ok(())
-                    })?;
+                    ing!("nontermC");
                 }
                 BurgerItem::NonTermEpsilon => {
-                    self.Epsilon.execute(|image| {
-                        window.draw_ex(&
-                            Rectangle::new(
-                                Vector::new(pos_x, pos_y),
-                                Vector::new(32., 32.)
-                            ),
-                            Img(&image),
-                            Transform::scale(Vector::new(3., 3.)),
-                            1000,
-                        );
-                        Ok(())
-                    })?;
+                    ing!("nonterme");
                 }
                 BurgerItem::NonTermS => {
-                    self.S.execute(|image| {
-                        window.draw_ex(&
-                            Rectangle::new(
-                                Vector::new(pos_x, pos_y),
-                                Vector::new(32., 32.)
-                            ),
-                            Img(&image),
-                            Transform::scale(Vector::new(3., 3.)),
-                            1000,
-                        );
-                        Ok(())
-                    })?;
+                    ing!("nontermS");
                 }
                 _ => {
                     self.ingredients.execute(|ing| {
@@ -147,6 +105,29 @@ impl MainState {
             Ok(())
         })?;
         self.draw_ingredients(window)?;
+        self.draw_btn(window)?;
+        Ok(())
+    }
+
+    fn draw_btn(&mut self, window: &mut Window) -> Result<()> {
+        let pressed = self.play_pressed;
+        self.ingredients.execute(|ing| {
+            let image = if pressed {
+                ing.get_img("buttondown").unwrap()
+            } else {
+                ing.get_img("buttonup").unwrap()
+            };
+            window.draw_ex(&
+                Rectangle::new(
+                    Vector::new(600., 380.),
+                    Vector::new(32., 32.)
+                ),
+                Img(&image),
+                Transform::scale(Vector::new(1.5, 1.5)),
+                100,
+            );
+            Ok(())
+        })?;
         Ok(())
     }
 
@@ -157,7 +138,8 @@ impl MainState {
         let init_y = 425.;
         let n_per_line = 5;
 
-        self.S.execute(|image| {
+        self.ingredients.execute(|ing| {
+            let image = ing.get_img("nontermS").unwrap();
             window.draw_ex(&
                 Rectangle::new(
                     Vector::new(init_x, init_y + 2. * objheight),
@@ -170,7 +152,8 @@ impl MainState {
             Ok(())
         })?;
 
-        self.Epsilon.execute(|image| {
+        self.ingredients.execute(|ing| {
+            let image = ing.get_img("nonterme").unwrap();
             window.draw_ex(&
                 Rectangle::new(
                     Vector::new(init_x, init_y + 3. * objheight),
@@ -183,7 +166,8 @@ impl MainState {
             Ok(())
         })?;
 
-        self.A.execute(|image| {
+        self.ingredients.execute(|ing| {
+            let image = ing.get_img("nontermA").unwrap();
             window.draw_ex(&
                 Rectangle::new(
                     Vector::new(init_x + objwidth, init_y + 2. * objheight),
@@ -196,7 +180,8 @@ impl MainState {
             Ok(())
         })?;
 
-        self.B.execute(|image| {
+        self.ingredients.execute(|ing| {
+            let image = ing.get_img("nontermB").unwrap();
             window.draw_ex(&
                 Rectangle::new(
                     Vector::new(init_x + 2. * objwidth, init_y + 2. * objheight),
@@ -209,7 +194,8 @@ impl MainState {
             Ok(())
         })?;
 
-        self.C.execute(|image| {
+        self.ingredients.execute(|ing| {
+            let image = ing.get_img("nontermC").unwrap();
             window.draw_ex(&
                 Rectangle::new(
                     Vector::new(init_x + 3. * objwidth, init_y + 2. * objheight),
@@ -241,6 +227,7 @@ impl MainState {
                         100,
                     );
                 }
+                // draw bottles
                 let bottles = vec!["ketchupbottle", "mayobottle", "bbqbottle" ];
                 for (i, src) in bottles.iter().enumerate() {
                     let img = ing.get_img(src).unwrap();
@@ -273,12 +260,6 @@ impl State for MainState {
         //     };
         // }
 
-        let S = Asset::new(Image::load("nontermS.png"));
-        let A = Asset::new(Image::load("nontermA.png"));
-        let B = Asset::new(Image::load("nontermB.png"));
-        let C = Asset::new(Image::load("nontermC.png"));
-        let Epsilon = Asset::new(Image::load("nonterme.png"));
-
         let game_ui = Asset::new(Image::load("gameui.png"));
         let ingredients = Asset::new(Ingredients::new());
 
@@ -288,7 +269,6 @@ impl State for MainState {
         let pos_x = 0.;
         let pos_y = 0.;
         Ok(MainState {
-            A, B, C, S, Epsilon,
             ingredients,
             burger,
             burger_seq,
@@ -297,8 +277,7 @@ impl State for MainState {
             game_ui,
             holding: None,
             mouse_down: false,
-            init_down: false,
-            init_up: false,
+            play_pressed: false,
         })
     }
 
@@ -325,7 +304,7 @@ impl State for MainState {
 
     }
 
-    fn event(&mut self, event: &Event, _window: &mut Window) -> Result<()> {
+    fn event(&mut self, event: &Event, window: &mut Window) -> Result<()> {
         match event {
             Event::MouseButton(
                 MouseButton::Left,
@@ -334,14 +313,21 @@ impl State for MainState {
 
                 let burger_seq = self.burger_seq.clone();
 
+                let v = window.mouse().pos();
 
-                self.ingredients.execute(|i|
-                    // burger_seq.borrow_mut().step(i)
-                    burger_seq.borrow_mut().cont(i)
-                )?;
+                println!("{:?}", v);
+                self.pos_x = v.x;
+                self.pos_y = v.y;
 
+                self.holding = start_drag_item(&v);
+                self.play_pressed = play_pressed(&v);
+                if self.play_pressed {
+                    self.ingredients.execute(|i|
+                        burger_seq.borrow_mut().step(i)
+                        // burger_seq.borrow_mut().cont(i)
+                    )?;
+                }
                 self.mouse_down = true;
-                self.init_down = true;
             }
 
             Event::MouseButton(
@@ -349,8 +335,8 @@ impl State for MainState {
                 ButtonState::Released
             ) => {
                 self.mouse_down = false;
-                self.init_up = true;
                 self.holding = None;
+                self.play_pressed = false;
             }
 
             Event::MouseMoved(v) => {
@@ -359,16 +345,6 @@ impl State for MainState {
                     self.pos_x = v.x;
                     self.pos_y = v.y;
                 }
-
-                if self.init_down {
-                    println!("start dragging");
-                    self.holding = start_drag_item(&v);
-                }
-                self.init_down = false;
-
-                if self.init_up {
-                }
-                self.init_up = false;
             }
 
             _ => (),
@@ -383,15 +359,24 @@ fn drop_zone(mouse: &Vector) -> Option<Dropzone> {
     unimplemented!()
 }
 
+fn play_pressed(mouse: &Vector) -> bool {
+    let play = (597., 376., 638., 414.);
+    if mouse.x > play.0 && mouse.y > play.1
+    && mouse.x < play.2 && mouse.y < play.3 {
+        true
+    } else {
+        false
+    }
+}
+
 fn start_drag_item(mouse: &Vector) -> Option<BurgerItem> {
     use self::BurgerItem::*;
     let init_x = 308.;
     let fin_x = 399.;
-    let init_y = 380.;
+    let init_y = 408.;
     let fin_y = 458.;
     let line_h = 40.;
     let items = vec![
-
         ((init_x, init_y, fin_x, fin_y), TopBun),
         ((1. * 100. + init_x, init_y, 1.* 100. + fin_x, fin_y), Fish),
         ((2. * 100. + init_x, init_y, 2.* 100. + fin_x, fin_y), Onion),

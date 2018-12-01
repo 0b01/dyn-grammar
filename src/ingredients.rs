@@ -18,7 +18,9 @@ impl Ingredients {
     pub fn new() -> impl Future<Item=Self, Error=Error> {
         let mut srcs = Ingredients::srcs();
         srcs.extend(vec![
-            "ketchupbottle", "mayobottle", "bbqbottle", "ketchup", "mayo", "bbq"
+            "ketchupbottle", "mayobottle", "bbqbottle", "ketchup", "mayo", "bbq",
+            "nonterme", "nontermA", "nontermS", "nontermB", "nontermC", "buttonup", "buttondown",
+
         ]);
 
         let img_futs = srcs.into_iter().map(move |src| {
@@ -96,6 +98,14 @@ impl Ingredients {
         }
         Ok(())
     }
+
+    pub fn set_duration(&mut self, duration: f64) -> Result<()> {
+        for i in self.anims.values_mut() {
+            i.set_duration(duration);
+        }
+        Ok(())
+    }
+
 
     pub fn draw_anim(&mut self, window: &mut Window, pos_x: f32, pos_y: f32, scale: f32) -> Result<()> {
         for i in self.anims.values_mut() {

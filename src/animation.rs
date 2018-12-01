@@ -86,4 +86,8 @@ impl Animation {
         self.current_t = 0.;
         Ok(())
     }
+
+    pub fn set_duration(&mut self, duration: f64) {
+        self.duration = duration;
+    }
 }

@@ -205,7 +205,6 @@ impl BurgerAnimSeq {
             idx: 0,
             static_idx: 0,
             drawing: None,
-
             play_continuous: false,
         }
     }
@@ -226,8 +225,11 @@ impl BurgerAnimSeq {
                 println!("Done playing", );
                 self.static_idx += 1;
                 self.drawing = None;
+                if self.static_idx == self.burger.toks.len() {
+                    self.play_continuous = false;
+                }
                 if self.play_continuous {
-                    self.step(ingredients);
+                    self.step(ingredients)?;
                 }
             }
         }
@@ -240,6 +242,7 @@ impl BurgerAnimSeq {
         &mut self,
         ingr: &mut Ingredients,
     ) -> Result<()> {
+        if self.drawing.is_some() {return Ok(());}
         if let Token::Terminal(itm) = &self.burger.toks[self.idx] {
             self.drawing = Some(itm.clone());
             let anim = itm.to_anim_str();
@@ -254,10 +257,12 @@ impl BurgerAnimSeq {
         &mut self,
         ing: &mut Ingredients,
     ) -> Result<()> {
+        self.idx = 0;
+        self.static_idx = 0;
         self.play_continuous = true;
-        self.step(ing);
+        ing.set_duration(0.7)?;
+        self.step(ing)?;
         Ok(())
     }
-
 
 }
