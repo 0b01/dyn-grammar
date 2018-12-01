@@ -13,7 +13,7 @@ mod ingredients;
 mod prelude;
 use crate::prelude::*;
 // use self::animation::Animation;
-use self::ingredients::{Ingredients, IngredientAnimations};
+use self::ingredients::Ingredients;
 use self::burger::{BurgerItem, Burger};
 
 extern crate quicksilver;
@@ -26,13 +26,12 @@ struct MainState {
     Epsilon: Asset<Image>,
 
     ingredients: Asset<Ingredients>,
-    ing_anim: Asset<IngredientAnimations>,
 
     game_ui: Asset<Image>,
 
-    burger: Burger,
+    burger: Rc<RefCell<Burger>>,
 
-    burger_seq: BurgerAnimSeq,
+    burger_seq: Rc<RefCell<BurgerAnimSeq>>,
 
     pos_x: f32,
     pos_y: f32,
@@ -123,7 +122,7 @@ impl MainState {
                 }
                 _ => {
                     self.ingredients.execute(|ing| {
-                        let img = ing.get(item).unwrap();
+                        let img = ing.get_img(item).unwrap();
                         window.draw_ex(&
                             Rectangle::new(
                                 Vector::new( pos_x, pos_y ),
@@ -229,7 +228,7 @@ impl MainState {
             |ing| {
                 let srcs = Ingredients::srcs();
                 // draw slices
-                for (i, src) in srcs.iter().enumerate() { let img = ing.get(src).unwrap();
+                for (i, src) in srcs.iter().enumerate() { let img = ing.get_img(src).unwrap();
                     let x = (i % n_per_line) as f32 * objwidth;
                     let y = (i / n_per_line) as f32 * objheight;
                     window.draw_ex(&
@@ -244,7 +243,7 @@ impl MainState {
                 }
                 let bottles = vec!["ketchupbottle", "mayobottle", "bbqbottle" ];
                 for (i, src) in bottles.iter().enumerate() {
-                    let img = ing.get(src).unwrap();
+                    let img = ing.get_img(src).unwrap();
                     let x = i as f32 * 74.;
                     window.draw_ex(&
                         Rectangle::new(
@@ -282,16 +281,14 @@ impl State for MainState {
 
         let game_ui = Asset::new(Image::load("gameui.png"));
         let ingredients = Asset::new(Ingredients::new());
-        let ing_anim = Asset::new(IngredientAnimations::new());
 
-        let burger = Burger::new();
-        let burger_seq = BurgerAnimSeq::new(burger.clone());
+        let burger = Rc::new(RefCell::new(Burger::new()));
+        let burger_seq = Rc::new(RefCell::new( BurgerAnimSeq::new(burger.borrow().clone()) ));
 
         let pos_x = 0.;
         let pos_y = 0.;
         Ok(MainState {
             A, B, C, S, Epsilon,
-            ing_anim,
             ingredients,
             burger,
             burger_seq,
@@ -307,7 +304,7 @@ impl State for MainState {
 
     fn update(&mut self, window: &mut Window) -> Result<()> {
         // self.animation.execute(|anim| anim.update(window))?;
-        self.ing_anim.execute(|ing| ing.update(window))?;
+        self.ingredients.execute(|ing| ing.update_anim(window))?;
         Ok(())
     }
 
@@ -315,8 +312,12 @@ impl State for MainState {
         window.clear(Color::CYAN)?;
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
+        let burger_seq = Rc::clone(&self.burger_seq);
+        self.ingredients.execute(|ingr|{
+            burger_seq.borrow_mut().draw(window, ingr)?;
+            Ok(())
+        });
 
-        self.burger_seq.draw(window, &mut self.ingredients, &mut self.ing_anim)?;
 
         // self.burger.draw(window, &mut self.ingredients)?;
 
@@ -331,7 +332,10 @@ impl State for MainState {
                 ButtonState::Pressed
             ) => {
 
-                self.burger_seq.step(&mut self.ing_anim)?;
+                let burger_seq = self.burger_seq.clone();
+                self.ingredients.execute(|i|
+                    burger_seq.borrow_mut().step(i)
+                );
 
                 self.mouse_down = true;
                 self.init_down = true;

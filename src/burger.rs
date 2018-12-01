@@ -156,7 +156,7 @@ impl Burger {
     /// draw a static burger
     pub fn draw(&self,
         window: &mut Window,
-        ingredients: &mut Asset<Ingredients>,
+        ingredients: &mut Ingredients,
         to: Option<usize>,
     ) -> Result<()> {
         let to = to.unwrap_or(self.toks.len());
@@ -168,20 +168,16 @@ impl Burger {
                 Token::Epsilon | Token::NonTerminal(_) => {continue; }
                 Token::Terminal(burger_item) => {
                     let item = burger_item.to_str();
-                    ingredients.execute(|ing| {
-
-                        let img = ing.get(item).unwrap();
-                        window.draw_ex(&
-                            Rectangle::new(
-                                Vector::new( init_x, init_y - i * dy ),
-                                Vector::new( 32., 32. )
-                            ),
-                            Img(&img),
-                            Transform::scale(Vector::new(3., 3.)),
-                            i as u32,
-                        );
-                        Ok(())
-                    })?;
+                    let img = ingredients.get_img(item).unwrap();
+                    window.draw_ex(&
+                        Rectangle::new(
+                            Vector::new( init_x, init_y - i * dy ),
+                            Vector::new( 32., 32. )
+                        ),
+                        Img(&img),
+                        Transform::scale(Vector::new(3., 3.)),
+                        i as u32,
+                    );
                 }
             }
             i += 1.;
@@ -197,6 +193,7 @@ pub struct BurgerAnimSeq {
     idx: usize,
     static_idx: usize,
     drawing: Option<BurgerItem>,
+    play_continuous: bool,
 }
 
 impl BurgerAnimSeq {
@@ -208,33 +205,31 @@ impl BurgerAnimSeq {
             idx: 0,
             static_idx: 0,
             drawing: None,
+
+            play_continuous: false,
         }
     }
 
     pub fn draw(
         &mut self,
         window: &mut Window,
-        ingredients: &mut Asset<Ingredients>,
-        ing_anim: &mut Asset<IngredientAnimations>,
+        ingredients: &mut Ingredients,
     ) -> Result<()> {
 
         let dy = 13.;
-        ing_anim.execute(|ing_anim| {
-            ing_anim.draw(window, 565., 190. - self.idx as f32 * dy, 2.)?;
-            Ok(())
-        })?;
+        ingredients.draw_anim(window, 565., 190. - self.idx as f32 * dy, 2.)?;
 
         if self.drawing.is_some() {
             let anim = self.drawing.as_ref().unwrap().to_anim_str();
-            ing_anim.execute(|ing_anim| {
-                let played = ing_anim.get_mut(anim).unwrap().played;
-                if played {
-                    println!("Done playing", );
-                    self.static_idx += 1;
-                    self.drawing = None;
+            let played = ingredients.get_anim_mut(anim).unwrap().played;
+            if played {
+                println!("Done playing", );
+                self.static_idx += 1;
+                self.drawing = None;
+                if self.play_continuous {
+                    self.idx += 1;
                 }
-                Ok(())
-            })?;
+            }
         }
         self.burger.draw(window, ingredients, Some(self.static_idx))?;
 
@@ -243,20 +238,26 @@ impl BurgerAnimSeq {
 
     pub fn step(
         &mut self,
-        ing_anim: &mut Asset<IngredientAnimations>,
+        ingr: &mut Ingredients,
     ) -> Result<()> {
         if let Token::Terminal(itm) = &self.burger.toks[self.idx] {
             self.drawing = Some(itm.clone());
 
             let anim = itm.to_anim_str();
-            ing_anim.execute(|ing_anim| {
-                ing_anim.get_mut(anim).unwrap().play()?;
-                Ok(())
-            })?;
+            ingr.get_anim_mut(anim).unwrap().play()?;
         }
 
 
         self.idx += 1;
+        Ok(())
+    }
+
+    pub fn continuous_play(
+        &mut self,
+        ing: &mut Ingredients,
+    ) -> Result<()> {
+        self.play_continuous = true;
+        self.step(ing);
         Ok(())
     }
 

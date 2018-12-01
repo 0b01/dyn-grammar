@@ -1,6 +1,6 @@
 use quicksilver;
 
-pub use crate::ingredients::{Ingredients, IngredientAnimations};
+pub use crate::ingredients::{Ingredients};
 pub use crate::animation::Animation;
 pub use crate::burger::{BurgerAnimSeq, Burger};
 
@@ -16,3 +16,6 @@ pub use quicksilver::{
 };
 
 pub const SCALE: f32 = 3.75;
+
+pub use std::rc::Rc;
+pub use std::cell::RefCell;
