@@ -72,8 +72,8 @@ impl Animation {
                 Vector::new(96., 96.)
             ),
             Img(&src),
-            Transform::scale(Vector::new(3., 3.)),
-            0,
+            Transform::scale(Vector::new(scale, scale)),
+            100,
         );
     }
 
