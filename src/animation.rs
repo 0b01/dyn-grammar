@@ -18,26 +18,29 @@ impl Animation {
         load_file(src)
             .map(|data| Image::from_bytes(data.as_slice()))
             .map(move |sheet| {
-                let sheet = sheet.unwrap();
-                let nframes = sheet.area().width() as usize / frame_w;
-                let mut imgs = Vec::new();
-                for i in 0..nframes {
-                    let region = Rectangle::new(
-                        Vector { x: i as f32 * 96., y: 0. },
-                        Vector { x: 96., y: 96. },
-                    );
-                    imgs.push(sheet.subimage(region));
-                }
-
-                Animation {
-                    imgs,
-                    played: false,
-                    nframes,
-                    duration,
-                    current_t: 0.,
-                }
+                Animation::from_image(sheet.unwrap(), frame_w, duration)
             })
             // .and_then(result)
+    }
+
+    pub fn from_image(image: Image, frame_w: usize, duration: f64) -> Animation {
+        let nframes = image.area().width() as usize / frame_w;
+        let mut imgs = Vec::new();
+        for i in 0..nframes {
+            let region = Rectangle::new(
+                Vector { x: i as f32 * 96., y: 0. },
+                Vector { x: 96., y: 96. },
+            );
+            imgs.push(image.subimage(region));
+        }
+
+        Animation {
+            imgs,
+            played: false,
+            nframes,
+            duration,
+            current_t: 0.,
+        }
     }
 
     pub fn update(&mut self, window: &mut Window) -> Result<()> {

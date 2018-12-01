@@ -8,11 +8,10 @@ pub struct Ingredients {
 impl Ingredients {
 
     pub fn srcs() -> Vec<&'static str> {
-        let srcs = vec![
+        vec![
             "top_bun", "fish", "onion", "beef_patty", "cheese",
             "bottom_bun", "chicken",
-            ];
-        srcs
+        ]
     }
 
     pub fn new() -> impl Future<Item=Self, Error=Error> {
@@ -55,43 +54,43 @@ pub struct IngredientAnimations {
 
 impl IngredientAnimations {
 
-    // pub fn srcs() -> Vec<&'static str> {
-    //     let srcs = vec![
-    //         "top_bun", "fish", "onion", "beef_patty", "cheese",
-    //         "bottom_bun", "chicken",
-    //         ];
-    //     srcs
-    // }
+    pub fn srcs() -> Vec<&'static str> {
+        vec![
+            "place_beef", "place_bottom_bun", "place_cheese", "place_chicken",
+            "place_fish", "place_lettuce", "place_onion", "place_top_bun",
+        ]
+    }
 
-    // pub fn new() -> impl Future<Item=Self, Error=Error> {
-    //     let mut srcs = Ingredients::srcs();
-    //     srcs.extend(vec![
-    //         "ketchupbottle", "mayobottle", "bbqbottle", "ketchup", "mayo", "bbq"
-    //     ]);
+    pub fn new() -> impl Future<Item=Self, Error=Error> {
+        let mut srcs = Ingredients::srcs();
+        srcs.extend(vec![
+            "squeeze_bbq", "squeeze_ketchup", "squeeze_mayo",
+        ]);
 
-    //     let futs = srcs.into_iter().map(move |src| {
-    //         load_file(src.to_owned() + ".png")
-    //             .map(move |data|
-    //                 (src, Image::from_bytes(data.as_slice()).unwrap())
-    //             )
-    //     });
+        let futs = srcs.into_iter().map(move |src| {
+            load_file(src.to_owned() + ".png")
+                .map(move |data|
+                    (src, Image::from_bytes(data.as_slice()).unwrap())
+                )
+        });
 
-    //     let ret = join_all(futs)
-    //         .map(|vec| {
-    //             let mut items = HashMap::new();
-    //             for (src, img) in vec.into_iter() {
-    //                 items.insert(src.to_string(), img);
-    //             }
+        let ret = join_all(futs)
+            .map(|vec| {
+                let mut items = HashMap::new();
+                for (src, img) in vec.into_iter() {
+                    let anim = Animation::from_image(img, 96, 1.2);
+                    items.insert(src.to_string(), anim);
+                }
 
-    //             Ingredients {
-    //                 items,
-    //             }
-    //         });
-    //     ret
-    // }
+                IngredientAnimations {
+                    items,
+                }
+            });
+        ret
+    }
 
-    // pub fn get(&self, name: &str) -> Option<&Image> {
-    //     self.items.get(name)
-    // }
+    pub fn get(&self, name: &str) -> Option<&Animation> {
+        self.items.get(name)
+    }
 
 }
