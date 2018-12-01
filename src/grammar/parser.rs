@@ -5,15 +5,15 @@ use std::hash::Hash;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
-    name: String,
-    production: Vec<Token<T>>,
+    pub name: String,
+    pub production: Vec<Token<T>>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Grammar<T: Debug + Clone + PartialEq + Hash + Eq> {
-    start: String,
-    rules: Vec<Rule<T>>,
-    first_sets: Option<HashMap<String, HashSet<(Token<T>, Rule<T>)>>>,
+    pub start: String,
+    pub rules: Vec<Rule<T>>,
+    pub first_sets: Option<HashMap<String, HashSet<(Token<T>, Rule<T>)>>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]

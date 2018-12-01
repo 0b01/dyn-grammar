@@ -1,6 +1,8 @@
 use crate::prelude::*;
 
 use crate::burger::*;
+use crate::grammar::*;
+
 use self::BurgerItem::*;
 
 const TITLE_HEIGHT: f32 = 50.;
@@ -9,13 +11,13 @@ const HEIGHT: f32 = 260.;
 const WIDTH: f32 = 70.;
 
 pub struct GameGrammar {
-    name: BurgerItem,
-    items: [BurgerItem; 5],
-    top_left: Vector,
+    pub name: BurgerItem,
+    pub items: [BurgerItem; 5],
+    pub top_left: Vector,
 }
 
 pub struct Game {
-    grammars: Vec<GameGrammar>,
+    rules: Vec<GameGrammar>,
 }
 
 impl GameGrammar {
@@ -90,36 +92,75 @@ impl GameGrammar {
         }
         Ok(())
     }
+
+    pub fn as_rule(&self) -> Option<Rule<BurgerItem>> {
+        if self.name == None {
+            return ::std::option::Option::None;
+        }
+        let mut production = vec![];
+        for i in &self.items {
+            if *i == None {
+                production.push(Token::Epsilon);
+            } else if i.is_nonterm() {
+                production.push(Token::NonTerminal(i.to_str().to_owned()));
+            } else {
+                production.push(Token::Terminal(*i))
+            }
+        }
+
+        Some(Rule {
+            name: self.name.to_str().to_owned(),
+            production,
+        })
+
+    }
+
 }
 
 impl Game {
 
-    pub fn new(grammars: Vec<GameGrammar>) -> Self {
+    pub fn new(rules: Vec<GameGrammar>) -> Self {
         Self {
-            grammars,
+            rules,
         }
     }
 
     pub fn get(&self, idx: usize) -> Option<&GameGrammar> {
-        self.grammars.get(idx)
+        self.rules.get(idx)
     }
 
     pub fn get_mut(&mut self, idx: usize) -> Option<&mut GameGrammar> {
-        self.grammars.get_mut(idx)
+        self.rules.get_mut(idx)
     }
 
     pub fn drop_item(&mut self, v: &Vector, itm: Option<BurgerItem>) {
-        for grammar in &mut self.grammars {
+        for grammar in &mut self.rules {
             let itm = itm.unwrap_or(BurgerItem::None); // remove item if empty
             grammar.set_item_with_pos(v, itm);
         }
     }
 
     pub fn draw(&mut self, window: &mut Window, ing: &Ingredients) -> Result<()> {
-        for grammar in &mut self.grammars {
+        for grammar in &mut self.rules {
             grammar.draw(window, ing)?;
         }
         Ok(())
+    }
+
+    pub fn as_grammar(&self) -> Grammar<BurgerItem> {
+        let rules = self.rules.iter()
+            .map(|i| i.as_rule())
+            .filter(|i|i.is_some())
+            .map(|i|i.unwrap())
+            .collect();
+
+        Grammar::new(
+            "S".to_owned(),
+            rules,
+        )
+
+        // g.build().unwrap();
+
     }
 
 }
