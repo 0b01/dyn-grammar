@@ -28,6 +28,7 @@ struct MainState {
 
     animation: Asset<Animation>,
     ingredients: Asset<Ingredients>,
+    ing_anim: Asset<IngredientAnimations>,
 
     game_ui: Asset<Image>,
 
@@ -283,6 +284,7 @@ impl State for MainState {
 
         let game_ui = Asset::new(Image::load("gameui.png"));
         let ingredients = Asset::new(Ingredients::new());
+        let ing_anim = Asset::new(IngredientAnimations::new());
 
         let burger = Burger::new();
 
@@ -291,6 +293,7 @@ impl State for MainState {
         Ok(MainState {
             A, B, C, S, Epsilon,
             animation,
+            ing_anim,
             ingredients,
             burger,
             pos_x,
@@ -304,7 +307,9 @@ impl State for MainState {
     }
 
     fn update(&mut self, window: &mut Window) -> Result<()> {
-        self.animation.execute(|anim| anim.update(window) )
+        // self.animation.execute(|anim| anim.update(window))?;
+        self.ing_anim.execute(|ing| ing.update(window))?;
+        Ok(())
     }
 
     fn draw(&mut self, window: &mut Window) -> Result<()> {
@@ -312,12 +317,19 @@ impl State for MainState {
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
 
-        self.animation.execute(|anim| {
+        // self.animation.execute(|anim| {
+        //     anim.draw(window, 575., 170., SCALE);
+        //     Ok(())
+        // })?;
+
+        self.ing_anim.execute(|ing_anim| {
+            let anim = ing_anim.get("squeeze_bbq").unwrap();
             anim.draw(window, 575., 170., SCALE);
             Ok(())
         })?;
 
-        self.burger.draw(window, &mut self.ingredients);
+
+        // self.burger.draw(window, &mut self.ingredients)?;
 
         Ok(())
 
@@ -329,7 +341,12 @@ impl State for MainState {
                 MouseButton::Left,
                 ButtonState::Pressed
             ) => {
-                self.animation.execute(|anim|anim.play())?;
+                // self.animation.execute(|anim|anim.play())?;
+
+                self.ing_anim.execute(|ing|
+                    ing.get_mut("squeeze_bbq").unwrap().play()
+                )?;
+
                 self.mouse_down = true;
                 self.init_down = true;
             }

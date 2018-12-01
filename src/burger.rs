@@ -127,10 +127,12 @@ impl Burger {
         }
     }
 
-    pub fn draw(&self, window: &mut Window, ingredients: &mut Asset<Ingredients>) -> Result<()> {
-        // x: 575., y: 170.
-        let init_x = 575.;
-        let init_y = 170.;
+    /// draw a static burger
+    pub fn draw(&self,
+        window: &mut Window,
+        ingredients: &mut Asset<Ingredients>
+    ) -> Result<()> {
+        let init_x = 595.; let init_y = 160.;
         let dy = 23.;
         let mut i = 0.;
         for tok in &self.toks {
@@ -150,17 +152,25 @@ impl Burger {
                             Transform::scale(Vector::new(3., 3.)),
                             100 - i as u32,
                         );
-
                         Ok(())
                     })?;
-
                 }
             }
-
-
             i += 1.;
         }
 
         Ok(())
+    }
+}
+
+pub struct BurgerAnimSeq {
+    current_t: f64,
+}
+
+impl BurgerAnimSeq {
+    pub fn new() -> Self {
+        Self {
+            current_t: 0.,
+        }
     }
 }

@@ -55,6 +55,7 @@ impl Animation {
 
         Ok(())
     }
+
     pub fn nth(&self) -> usize {
         let frame = (self.current_t / self.duration * self.nframes as f64).floor() as usize + 1;
         let nth = frame % self.nframes;

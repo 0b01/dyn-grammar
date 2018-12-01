@@ -62,7 +62,7 @@ impl IngredientAnimations {
     }
 
     pub fn new() -> impl Future<Item=Self, Error=Error> {
-        let mut srcs = Ingredients::srcs();
+        let mut srcs = IngredientAnimations::srcs();
         srcs.extend(vec![
             "squeeze_bbq", "squeeze_ketchup", "squeeze_mayo",
         ]);
@@ -91,6 +91,17 @@ impl IngredientAnimations {
 
     pub fn get(&self, name: &str) -> Option<&Animation> {
         self.items.get(name)
+    }
+
+    pub fn get_mut(&mut self, name: &str) -> Option<&mut Animation> {
+        self.items.get_mut(name)
+    }
+
+    pub fn update(&mut self, window: &mut Window) -> Result<()> {
+        for i in self.items.values_mut() {
+            i.update(window)?;
+        }
+        Ok(())
     }
 
 }
