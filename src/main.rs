@@ -260,7 +260,7 @@ impl State for MainState {
         //     };
         // }
 
-        let game_ui = Asset::new(Image::load("gameui.png"));
+        let game_ui = Asset::new(Image::load("game_ui.png"));
         let ingredients = Asset::new(Ingredients::new());
 
         let burger = Rc::new(RefCell::new(Burger::new()));

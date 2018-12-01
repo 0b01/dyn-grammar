@@ -242,7 +242,7 @@ impl BurgerAnimSeq {
         &mut self,
         ingr: &mut Ingredients,
     ) -> Result<()> {
-        if self.drawing.is_some() {return Ok(());}
+        if self.drawing.is_some() { return Ok(()); }
         if let Token::Terminal(itm) = &self.burger.toks[self.idx] {
             self.drawing = Some(itm.clone());
             let anim = itm.to_anim_str();
