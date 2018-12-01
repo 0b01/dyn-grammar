@@ -1,13 +1,34 @@
 use crate::grammar::parser::Token;
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
-pub enum Ingredient {
+pub enum BurgerItem {
     TopBun,
     BottomBun,
     Chicken,
     Beef,
     Cheese,
+    Fish,
+    Onion,
     Ketchup,
+    Mayo,
+    BBQ,
+}
+
+impl BurgerItem {
+    pub fn to_str(&self) -> &'static str {
+        match &self {
+            BurgerItem::TopBun => "top_bun",
+            BurgerItem::BottomBun => "bottom_bun",
+            BurgerItem::Chicken => "chicken",
+            BurgerItem::Beef => "beef_patty",
+            BurgerItem::Cheese => "cheese",
+            BurgerItem::Fish => "fish",
+            BurgerItem::Onion => "onion",
+            BurgerItem::Ketchup => "ketchup",
+            BurgerItem::Mayo => "mayo",
+            BurgerItem::BBQ => "bbq",
+        }
+    }
 }
 
 trait Burger {
@@ -28,7 +49,7 @@ pub enum BurgerType {
 /// N -> cheese beef cheese beef N .
 /// N -> .
 struct DoubleCheeseburger {
-    examples: Vec<Token<Ingredient>>,
+    examples: Vec<Token<BurgerItem>>,
 }
 
 impl DoubleCheeseburger {
@@ -46,7 +67,7 @@ impl DoubleCheeseburger {
 /// N -> chicken .
 /// S -> .
 struct WcGangbang {
-    examples: Vec<Token<Ingredient>>,
+    examples: Vec<Token<BurgerItem>>,
 }
 
 impl Burger for WcGangbang {
@@ -63,7 +84,7 @@ impl Burger for WcGangbang {
 
 ///
 struct LandSeaAndAir {
-    examples: Vec<Token<Ingredient>>,
+    examples: Vec<Token<BurgerItem>>,
 }
 
 impl Burger for LandSeaAndAir {
