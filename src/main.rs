@@ -6,9 +6,11 @@
 mod grammar;
 mod burger;
 mod animation;
+mod ingredients;
 mod prelude;
 use crate::prelude::*;
 use self::animation::Animation;
+use self::ingredients::Ingredients;
 
 const SCALE: f32 = 3.75;
 
@@ -16,7 +18,7 @@ extern crate quicksilver;
 
 struct MainState {
     animation: Asset<Animation>,
-    ingredients: Asset<Ingredient>,
+    ingredients: Asset<Ingredients>,
     font: Asset<Image>,
     game_ui: Asset<Image>,
     pos_x: f32,
@@ -34,12 +36,14 @@ impl State for MainState {
                 result(font.render("Sample Text", &style))
             }));
         let game_ui = Asset::new(Image::load("gameui.png"));
+        let ingredients = Asset::new(Ingredients::new());
 
         let pos_x = 0.;
         let pos_y = 0.;
         Ok(MainState {
             font,
             animation,
+            ingredients,
             pos_x,
             pos_y,
             game_ui,

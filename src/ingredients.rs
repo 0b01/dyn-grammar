@@ -1,34 +1,48 @@
+use crate::prelude::*;
 use std::collections::HashMap;
 
-struct Ingredients {
-    items: HashMap<&'static str, Image>,
+pub struct Ingredients {
+    items: HashMap<String, Image>,
 }
 
 impl Ingredients {
 
     pub fn new() -> impl Future<Item=Self, Error=Error> {
-        let mut items = HashMap::new();
-        load_file(src)
-            .map(|data| Image::from_bytes(data.as_slice()))
-            .map(move |sheet| {
-                let sheet = sheet.unwrap();
-                let nframes = sheet.area().width() as usize / frame_w;
-                let mut imgs = Vec::new();
-                for i in 0..nframes {
-                    let region = Rectangle::new(
-                        Vector { x: i as f32 * 96., y: 0. },
-                        Vector { x: 96., y: 96. },
-                    );
-                    imgs.push(sheet.subimage(region));
+        let srcs = vec![
+            "bbq",
+            "fish",
+            "onion",
+            "beef_patty",
+            "bottom_bun",
+            "cheese",
+            "chicken",
+            "mayo",
+            "top_bun",
+        ];
+
+        let futs = srcs.into_iter().map(move |src| {
+            load_file(src.to_owned() + ".png")
+                .map(move |data|
+                    (src, Image::from_bytes(data.as_slice()).unwrap())
+                )
+        });
+
+        let ret = join_all(futs)
+            .map(|vec| {
+                let mut items = HashMap::new();
+                for (src, img) in vec.into_iter() {
+                    items.insert(src.to_string(), img);
                 }
 
-                Animation {
-                    imgs,
-                    played: false,
-                    nframes,
-                    duration,
-                    current_t: 0.,
+                Ingredients {
+                    items,
                 }
-            })
-            // .and_then(result)
+            });
+        ret
     }
+
+    pub fn get(&self, name: &str) -> Option<&Image> {
+        self.items.get(name)
+    }
+
+}

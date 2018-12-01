@@ -2,7 +2,7 @@ use quicksilver;
 
 pub use quicksilver::{
     Result, Error,
-    combinators::result,
+    combinators::{result, join_all},
     Future,
     load_file,
     geom::{Shape, Vector, Rectangle, Transform},
