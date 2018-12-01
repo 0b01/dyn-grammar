@@ -36,7 +36,7 @@ struct MainState {
 
     play_pressed: bool,
 
-    game: Game,
+    game: Rc<RefCell<Game>>,
 }
 
 
@@ -274,10 +274,13 @@ impl State for MainState {
         let pos_x = 0.;
         let pos_y = 0.;
 
-        let top_left = Vector::new(45., 20.);
         let mut grams = Vec::new();
-        grams.push(GameGrammar::new(top_left));
-        let game = Game::new(grams);
+        grams.push(GameGrammar::new(Vector::new(45., 20.)));
+        grams.push(GameGrammar::new(Vector::new(152, 20)));
+        grams.push(GameGrammar::new(Vector::new(45., 310)));
+        grams.push(GameGrammar::new(Vector::new(152, 310)));
+
+        let game = Rc::new(RefCell::new(Game::new(grams)));
 
         Ok(MainState {
             ingredients,
@@ -303,12 +306,14 @@ impl State for MainState {
         window.clear(Color::CYAN)?;
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
+
         let burger_seq = Rc::clone(&self.burger_seq);
+        let game = Rc::clone(&self.game);
         self.ingredients.execute(|ingr|{
             burger_seq.borrow_mut().draw(window, ingr)?;
+            game.borrow_mut().draw(window, ingr)?;
             Ok(())
         })?;
-
 
         // self.burger.draw(window, &mut self.ingredients)?;
 
@@ -347,7 +352,7 @@ impl State for MainState {
                 ButtonState::Released
             ) => {
                 let v = window.mouse().pos();
-                self.game.drop(&v, self.holding);
+                self.game.borrow_mut().drop_item(&v, self.holding);
 
                 self.mouse_down = false;
                 self.holding = None;

@@ -45,11 +45,11 @@ impl BurgerItem {
             BurgerItem::Mayo => "squeeze_mayo",
             BurgerItem::BBQ => "squeeze_bbq",
 
-            BurgerItem::NonTermA => "a",
-            BurgerItem::NonTermB => "b",
-            BurgerItem::NonTermC => "c",
-            BurgerItem::NonTermS => "s",
-            BurgerItem::NonTermEpsilon => "e",
+            BurgerItem::NonTermA => "nontermA",
+            BurgerItem::NonTermB => "nontermB",
+            BurgerItem::NonTermC => "nontermC",
+            BurgerItem::NonTermS => "nontermS",
+            BurgerItem::NonTermEpsilon => "nontermE",
             BurgerItem::None => "",
         }
     }
@@ -67,11 +67,11 @@ impl BurgerItem {
             BurgerItem::BBQ => "bbq",
             BurgerItem::Lettuce => "lettuce",
 
-            BurgerItem::NonTermA => "a",
-            BurgerItem::NonTermB => "b",
-            BurgerItem::NonTermC => "c",
-            BurgerItem::NonTermS => "s",
-            BurgerItem::NonTermEpsilon => "e",
+            BurgerItem::NonTermA => "nontermA",
+            BurgerItem::NonTermB => "nontermB",
+            BurgerItem::NonTermC => "nontermC",
+            BurgerItem::NonTermS => "nontermS",
+            BurgerItem::NonTermEpsilon => "nonterme",
 
             BurgerItem::None => "",
         }
