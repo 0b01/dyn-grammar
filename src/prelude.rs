@@ -1,5 +1,8 @@
 use quicksilver;
 
+pub use crate::ingredients::Ingredients;
+pub use crate::animation::Animation;
+
 pub use quicksilver::{
     Result, Error,
     combinators::{result, join_all},
