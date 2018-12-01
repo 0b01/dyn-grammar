@@ -26,6 +26,59 @@ struct MainState {
     // mouse_down: bool,
 }
 
+impl MainState {
+
+    fn draw_ui(&mut self, window: &mut Window) -> Result<()> {
+        // draw main bg
+        self.game_ui.execute(|image| {
+            window.draw(&image.area(), Img(&image));
+            Ok(())
+        })?;
+        self.draw_ingredients(window);
+        Ok(())
+    }
+
+    fn draw_ingredients(&mut self, window: &mut Window) -> Result<()> {
+        let objheight = 40.;
+        let objwidth = 100.;
+        let n_per_line = 5;
+        self.ingredients.execute(
+            |ing| {
+                let srcs = Ingredients::srcs();
+                // draw slices
+                for (i, src) in srcs.iter().enumerate() {
+                    let img = ing.get(src).unwrap();
+                    let x = (i % n_per_line) as f32 * objwidth;
+                    let y = (i / n_per_line) as f32 * objheight;
+                    window.draw_ex(&
+                        Rectangle::new(
+                            Vector::new(340. + x, 450. + y ),
+                            Vector::new(32., 32.)
+                        ),
+                        Img(&img),
+                        Transform::scale(Vector::new(3., 3.)),
+                        100,
+                    );
+                }
+                let bottles = vec!["ketchupbottle", "mayobottle", "bbqbottle" ];
+                for (i, src) in bottles.iter().enumerate() {
+                    let img = ing.get(src).unwrap();
+                    let x = i as f32 * 74.;
+                    window.draw_ex(&
+                        Rectangle::new(
+                            Vector::new(575. + x, 590.),
+                            Vector::new(96., 96.)
+                        ),
+                        Img(&img),
+                        Transform::scale(Vector::new(3., 3.)),
+                        100,
+                    );
+                }
+                Ok(())
+        })?;
+        Ok(())
+    }
+}
 
 impl State for MainState {
     fn new() -> Result<MainState> {
@@ -56,11 +109,8 @@ impl State for MainState {
 
     fn draw(&mut self, window: &mut Window) -> Result<()> {
         window.clear(Color::CYAN)?;
+        self.draw_ui(window);
 
-        self.game_ui.execute(|image| {
-            window.draw(&image.area(), Img(&image));
-            Ok(())
-        })?;
 
         self.animation.execute(|anim| {
             anim.draw(window, 575., 170., SCALE);

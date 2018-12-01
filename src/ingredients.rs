@@ -7,18 +7,17 @@ pub struct Ingredients {
 
 impl Ingredients {
 
-    pub fn new() -> impl Future<Item=Self, Error=Error> {
+    pub fn srcs() -> Vec<&'static str> {
         let srcs = vec![
-            "bbq",
-            "fish",
-            "onion",
-            "beef_patty",
-            "bottom_bun",
-            "cheese",
-            "chicken",
-            "mayo",
-            "top_bun",
-        ];
+            "top_bun", "fish", "onion", "beef_patty", "cheese",
+            "bottom_bun", "chicken",
+            ];
+        srcs
+    }
+
+    pub fn new() -> impl Future<Item=Self, Error=Error> {
+        let mut srcs = Ingredients::srcs();
+        srcs.extend(vec!["ketchupbottle", "mayobottle", "bbqbottle" ]);
 
         let futs = srcs.into_iter().map(move |src| {
             load_file(src.to_owned() + ".png")
