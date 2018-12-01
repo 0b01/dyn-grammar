@@ -10,11 +10,13 @@ mod grammar;
 mod burger;
 mod animation;
 mod ingredients;
+mod game;
 mod prelude;
 use crate::prelude::*;
 // use self::animation::Animation;
 use self::ingredients::Ingredients;
 use self::burger::{BurgerItem, Burger};
+use self::game::{Game, GameGrammar};
 
 extern crate quicksilver;
 
@@ -33,7 +35,10 @@ struct MainState {
     mouse_down: bool,
 
     play_pressed: bool,
+
+    game: Game,
 }
+
 
 impl MainState {
 
@@ -268,6 +273,12 @@ impl State for MainState {
 
         let pos_x = 0.;
         let pos_y = 0.;
+
+        let top_left = Vector::new(45., 20.);
+        let mut grams = Vec::new();
+        grams.push(GameGrammar::new(top_left));
+        let game = Game::new(grams);
+
         Ok(MainState {
             ingredients,
             burger,
@@ -275,6 +286,7 @@ impl State for MainState {
             pos_x,
             pos_y,
             game_ui,
+            game,
             holding: None,
             mouse_down: false,
             play_pressed: false,
@@ -334,6 +346,9 @@ impl State for MainState {
                 MouseButton::Left,
                 ButtonState::Released
             ) => {
+                let v = window.mouse().pos();
+                self.game.drop(&v, self.holding);
+
                 self.mouse_down = false;
                 self.holding = None;
                 self.play_pressed = false;
@@ -406,7 +421,7 @@ fn start_drag_item(mouse: &Vector) -> Option<BurgerItem> {
             return Some(item.clone());
         }
     }
-    None
+    ::std::option::Option::None
 }
 
 fn main() {

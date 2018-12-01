@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::grammar::parser::Token;
 
-#[derive(Clone, Hash, Eq, PartialEq, Debug)]
+#[derive(Clone, Hash, Eq, PartialEq, Debug, Copy)]
 pub enum BurgerItem {
     TopBun,
     BottomBun,
@@ -19,9 +19,18 @@ pub enum BurgerItem {
     Ketchup,
     Mayo,
     BBQ,
+    None,
 }
 
 impl BurgerItem {
+    pub fn is_nonterm(&self) -> bool {
+        use self::BurgerItem::*;
+        match &self {
+            NonTermS | NonTermA | NonTermB | NonTermC | NonTermEpsilon =>
+                true,
+            _ => false,
+        }
+    }
     pub fn to_anim_str(&self) -> &'static str {
         match &self {
             BurgerItem::Lettuce => "place_lettuce",
@@ -41,6 +50,7 @@ impl BurgerItem {
             BurgerItem::NonTermC => "c",
             BurgerItem::NonTermS => "s",
             BurgerItem::NonTermEpsilon => "e",
+            BurgerItem::None => "",
         }
     }
     pub fn to_str(&self) -> &'static str {
@@ -62,6 +72,8 @@ impl BurgerItem {
             BurgerItem::NonTermC => "c",
             BurgerItem::NonTermS => "s",
             BurgerItem::NonTermEpsilon => "e",
+
+            BurgerItem::None => "",
         }
     }
 }
