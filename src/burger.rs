@@ -132,6 +132,7 @@ impl Level for LandSeaAndAir {
 }
 
 
+#[derive(Clone)]
 pub struct Burger {
     toks: Vec<Token<BurgerItem>>,
 }
@@ -140,10 +141,12 @@ impl Burger {
     pub fn new() -> Self {
         use self::BurgerItem::*;
         let mut toks = vec![];
-        toks.push(Token::Terminal(TopBun));
-        toks.push(Token::Terminal(Cheese));
-        toks.push(Token::Terminal(Beef));
         toks.push(Token::Terminal(BottomBun));
+        toks.push(Token::Terminal(Beef));
+        toks.push(Token::Terminal(Cheese));
+        toks.push(Token::Terminal(Lettuce));
+        toks.push(Token::Terminal(Ketchup));
+        toks.push(Token::Terminal(TopBun));
 
         Self {
             toks,
@@ -153,12 +156,14 @@ impl Burger {
     /// draw a static burger
     pub fn draw(&self,
         window: &mut Window,
-        ingredients: &mut Asset<Ingredients>
+        ingredients: &mut Asset<Ingredients>,
+        to: Option<usize>,
     ) -> Result<()> {
-        let init_x = 595.; let init_y = 160.;
-        let dy = 23.;
+        let to = to.unwrap_or(self.toks.len());
+        let init_x = 595.; let init_y = 230.;
+        let dy = 13.;
         let mut i = 0.;
-        for tok in &self.toks {
+        for tok in &self.toks[..to] {
             match tok {
                 Token::Epsilon | Token::NonTerminal(_) => {continue; }
                 Token::Terminal(burger_item) => {
@@ -168,12 +173,12 @@ impl Burger {
                         let img = ing.get(item).unwrap();
                         window.draw_ex(&
                             Rectangle::new(
-                                Vector::new( init_x, init_y + i * dy ),
+                                Vector::new( init_x, init_y - i * dy ),
                                 Vector::new( 32., 32. )
                             ),
                             Img(&img),
                             Transform::scale(Vector::new(3., 3.)),
-                            100 - i as u32,
+                            i as u32,
                         );
                         Ok(())
                     })?;
@@ -190,44 +195,20 @@ pub struct BurgerAnimSeq {
     current_t: f64,
     burger: Burger,
     idx: usize,
-    played: Vec<bool>,
-    playing: Option<BurgerItem>,
+    static_idx: usize,
+    drawing: Option<BurgerItem>,
 }
 
 impl BurgerAnimSeq {
     pub fn new(burger: Burger) -> Self {
-        let played = vec![false; burger.toks.len()];
-        let playing = None;
+        // let played = vec![false; burger.toks.len()];
         Self {
             current_t: 0.,
             burger,
             idx: 0,
-            played,
-            playing,
+            static_idx: 0,
+            drawing: None,
         }
-    }
-
-    fn draw_static(
-        &mut self,
-        window: &mut Window,
-        ingredients: &mut Asset<Ingredients>
-    ) -> Result<()> {
-        Ok(())
-    }
-
-    fn draw_anim(
-        &mut self,
-        window: &mut Window,
-        ing_anim: &mut Asset<IngredientAnimations>
-    ) -> Result<()> {
-        let tok = &self.playing.as_ref().unwrap();
-        let anim_name = tok.to_anim_str();
-        ing_anim.execute(|ing_anim|{
-            let anim = ing_anim.get(anim_name).unwrap();
-            anim.draw(window, 575., 170., SCALE);
-            Ok(())
-        })?;
-        Ok(())
     }
 
     pub fn draw(
@@ -236,21 +217,46 @@ impl BurgerAnimSeq {
         ingredients: &mut Asset<Ingredients>,
         ing_anim: &mut Asset<IngredientAnimations>,
     ) -> Result<()> {
-        if self.playing.is_some() {
-            self.draw_anim(window, ing_anim)?;
+
+        let dy = 13.;
+        ing_anim.execute(|ing_anim| {
+            ing_anim.draw(window, 565., 190. - self.idx as f32 * dy, 2.)?;
+            Ok(())
+        })?;
+
+        if self.drawing.is_some() {
+            let anim = self.drawing.as_ref().unwrap().to_anim_str();
+            ing_anim.execute(|ing_anim| {
+                let played = ing_anim.get_mut(anim).unwrap().played;
+                if played {
+                    println!("Done playing", );
+                    self.static_idx += 1;
+                    self.drawing = None;
+                }
+                Ok(())
+            })?;
         }
-        self.draw_static(window, ingredients)?;
+        self.burger.draw(window, ingredients, Some(self.static_idx))?;
+
         Ok(())
     }
 
-    pub fn step(&mut self, window: &mut Window) -> Result<()> {
-        if !self.played[self.idx] {
-            if let &Token::Terminal(ref itm) = &self.burger.toks[self.idx] {
-                self.playing = Some(itm.clone());
-            }
-        }
-        self.idx += 1;
+    pub fn step(
+        &mut self,
+        ing_anim: &mut Asset<IngredientAnimations>,
+    ) -> Result<()> {
+        if let Token::Terminal(itm) = &self.burger.toks[self.idx] {
+            self.drawing = Some(itm.clone());
 
+            let anim = itm.to_anim_str();
+            ing_anim.execute(|ing_anim| {
+                ing_anim.get_mut(anim).unwrap().play()?;
+                Ok(())
+            })?;
+        }
+
+
+        self.idx += 1;
         Ok(())
     }
 

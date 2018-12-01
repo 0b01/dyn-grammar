@@ -2,6 +2,7 @@ use quicksilver;
 
 pub use crate::ingredients::{Ingredients, IngredientAnimations};
 pub use crate::animation::Animation;
+pub use crate::burger::{BurgerAnimSeq, Burger};
 
 pub use quicksilver::{
     Result, Error,

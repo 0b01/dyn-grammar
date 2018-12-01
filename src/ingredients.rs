@@ -58,6 +58,7 @@ impl IngredientAnimations {
         vec![
             "place_beef", "place_bottom_bun", "place_cheese", "place_chicken",
             "place_fish", "place_lettuce", "place_onion", "place_top_bun",
+            "cutbread",
         ]
     }
 
@@ -100,6 +101,13 @@ impl IngredientAnimations {
     pub fn update(&mut self, window: &mut Window) -> Result<()> {
         for i in self.items.values_mut() {
             i.update(window)?;
+        }
+        Ok(())
+    }
+
+    pub fn draw(&mut self, window: &mut Window, pos_x: f32, pos_y: f32, scale: f32) -> Result<()> {
+        for i in self.items.values_mut() {
+            i.draw(window, pos_x, pos_y, SCALE);
         }
         Ok(())
     }

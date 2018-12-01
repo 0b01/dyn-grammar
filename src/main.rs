@@ -12,7 +12,7 @@ mod animation;
 mod ingredients;
 mod prelude;
 use crate::prelude::*;
-use self::animation::Animation;
+// use self::animation::Animation;
 use self::ingredients::{Ingredients, IngredientAnimations};
 use self::burger::{BurgerItem, Burger};
 
@@ -25,13 +25,14 @@ struct MainState {
     C: Asset<Image>,
     Epsilon: Asset<Image>,
 
-    animation: Asset<Animation>,
     ingredients: Asset<Ingredients>,
     ing_anim: Asset<IngredientAnimations>,
 
     game_ui: Asset<Image>,
 
     burger: Burger,
+
+    burger_seq: BurgerAnimSeq,
 
     pos_x: f32,
     pos_y: f32,
@@ -263,8 +264,6 @@ impl MainState {
 
 impl State for MainState {
     fn new() -> Result<MainState> {
-        let animation = Asset::new(Animation::new("cutbread.png", 96, 1.2));
-
         // macro_rules! font {
         //     ($i: expr) => {
         //         Asset::new(Font::load("fonts/CourierPrime.ttf")
@@ -286,15 +285,16 @@ impl State for MainState {
         let ing_anim = Asset::new(IngredientAnimations::new());
 
         let burger = Burger::new();
+        let burger_seq = BurgerAnimSeq::new(burger.clone());
 
         let pos_x = 0.;
         let pos_y = 0.;
         Ok(MainState {
             A, B, C, S, Epsilon,
-            animation,
             ing_anim,
             ingredients,
             burger,
+            burger_seq,
             pos_x,
             pos_y,
             game_ui,
@@ -316,17 +316,7 @@ impl State for MainState {
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
 
-        // self.animation.execute(|anim| {
-        //     anim.draw(window, 575., 170., SCALE);
-        //     Ok(())
-        // })?;
-
-        self.ing_anim.execute(|ing_anim| {
-            let anim = ing_anim.get("squeeze_bbq").unwrap();
-            anim.draw(window, 575., 170., SCALE);
-            Ok(())
-        })?;
-
+        self.burger_seq.draw(window, &mut self.ingredients, &mut self.ing_anim)?;
 
         // self.burger.draw(window, &mut self.ingredients)?;
 
@@ -340,11 +330,8 @@ impl State for MainState {
                 MouseButton::Left,
                 ButtonState::Pressed
             ) => {
-                // self.animation.execute(|anim|anim.play())?;
 
-                self.ing_anim.execute(|ing|
-                    ing.get_mut("squeeze_bbq").unwrap().play()
-                )?;
+                self.burger_seq.step(&mut self.ing_anim)?;
 
                 self.mouse_down = true;
                 self.init_down = true;
@@ -360,7 +347,7 @@ impl State for MainState {
             }
 
             Event::MouseMoved(v) => {
-                println!("{:#?}", v);
+                // println!("{:#?}", v);
                 if self.mouse_down {
                     self.pos_x = v.x;
                     self.pos_y = v.y;

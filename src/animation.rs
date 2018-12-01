@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 pub struct Animation {
     imgs: Vec<Image>,
-    played: bool,
+    pub played: bool,
     nframes: usize,
     /// in seconds
     duration: f64,
