@@ -275,17 +275,17 @@ impl State for MainState {
         let pos_y = 0.;
 
         let mut grams = Vec::new();
-        let mut g1 = GameBurgerRule::new(Vector::new(45., 20.  ), 0);
+        let mut g1 = GameBurgerRule::new(Vector::new(45., 20.  ));
         g1.set_name(BurgerItem::NonTermS);
         g1.set_item(0, BurgerItem::TopBun);
         g1.set_item(1, BurgerItem::NonTermS);
         g1.set_item(2, BurgerItem::BottomBun);
-        let mut g2 = GameBurgerRule::new(Vector::new(152., 20. ), 1);
+        let mut g2 = GameBurgerRule::new(Vector::new(152., 20. ));
         g2.set_name(BurgerItem::NonTermS);
         grams.push(g1);
         grams.push(g2);
-        grams.push(GameBurgerRule::new(Vector::new(45., 310. ), 2));
-        grams.push(GameBurgerRule::new(Vector::new(152., 310.), 3));
+        grams.push(GameBurgerRule::new(Vector::new(45., 310. )));
+        grams.push(GameBurgerRule::new(Vector::new(152., 310.)));
 
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
@@ -339,7 +339,7 @@ impl State for MainState {
 
                 let v = window.mouse().pos();
 
-                println!("{:?}", v);
+                // println!("{:?}", v);
                 self.pos_x = v.x;
                 self.pos_y = v.y;
 
@@ -352,11 +352,8 @@ impl State for MainState {
                     self.Sprites.execute(|i| {
                         // burger_seq.borrow_mut().step(i)?;
                         game.borrow_mut().step_burger(i)?;
-                        // let mut g = game.borrow().as_grammar();
-                        // g.build().unwrap();
-                        // println!("{:#?}", g);
-                        Ok(())
                         // burger_seq.borrow_mut().cont(i)
+                        Ok(())
                     })?;
                 }
                 self.mouse_down = true;

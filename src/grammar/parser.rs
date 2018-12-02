@@ -7,7 +7,7 @@ use std::hash::Hash;
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
     pub name: String,
-    pub id: u32,
+    pub id: usize,
     pub production: Vec<Token<T>>,
 }
 
@@ -96,7 +96,7 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
         self.match_rule(&mut sent, &mut prod, rule_id)
     }
 
-    fn match_rule(&self, sent: &mut Vec<Token<T>>, rule: &mut Vec<Token<T>>, rule_id: u32) -> Result<AbstractBurgerTree<T>, &'static str> {
+    fn match_rule(&self, sent: &mut Vec<Token<T>>, rule: &mut Vec<Token<T>>, rule_id: usize) -> Result<AbstractBurgerTree<T>, &'static str> {
         let mut ret = vec![];
         while let Some(t) = rule.get(0) {
             let t = t.clone();

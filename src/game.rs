@@ -14,23 +14,23 @@ pub struct GameBurgerRule {
     pub name: BurgerItem,
     pub items: [BurgerItem; 5],
     pub top_left: Vector,
-    pub id: u32,
-    pub pointer: Option<usize>,
+    pub pointer: Vec<usize>,
 }
 
 pub struct Game {
     rules: Vec<GameBurgerRule>,
     burger: Option<BurgerAnimSeq>,
+    seq: Option<Vec<AnimDelta>>,
+    rule_stack: Vec<usize>,
 }
 
 impl GameBurgerRule {
-    pub fn new(top_left: Vector, id: u32) -> Self {
+    pub fn new(top_left: Vector) -> Self {
         Self {
             name: None,
             items: [None; 5],
             top_left,
-            id,
-            pointer: Option::None,
+            pointer: vec![],
         }
     }
 
@@ -96,14 +96,23 @@ impl GameBurgerRule {
             );
         }
 
-        if self.pointer.is_some() {
+        if !self.pointer.is_empty() {
             let img = ing.get_img("pointer").unwrap();
-            let i = self.pointer.unwrap();
+            let i = *self.pointer.last().unwrap();
+            let (px, py) = if i == 5 {
+                (
+                    self.top_left.x - 32.,
+                    self.top_left.y,
+                )
+            } else {
+                (
+                    self.top_left.x - 32.,
+                    self.top_left.y + TITLE_HEIGHT + 4. + i as f32 * LINE_HEIGHT
+                )
+            };
             window.draw_ex(&
                 Rectangle::new(
-                    Vector::new(
-                        self.top_left.x - 32.,
-                        self.top_left.y + TITLE_HEIGHT + 4. + i as f32 * LINE_HEIGHT),
+                    Vector::new(px, py),
                     Vector::new(32., 32.)
                 ),
                 Img(&img),
@@ -115,7 +124,16 @@ impl GameBurgerRule {
         Ok(())
     }
 
-    pub fn as_rule(&self) -> Option<Rule<BurgerItem>> {
+    pub fn step(&mut self) {
+        let mut current = *self.pointer.last().unwrap();
+        current -= 1;
+        while current > 0 && self.items[current as usize] == None {
+            current -= 1;
+        }
+        *self.pointer.last_mut().unwrap() = current;
+    }
+
+    pub fn as_rule(&self, id: usize) -> Option<Rule<BurgerItem>> {
         if self.name == None {
             return Option::None;
         }
@@ -136,7 +154,7 @@ impl GameBurgerRule {
         Some(Rule {
             name: self.name.to_str().to_owned(),
             production,
-            id: self.id,
+            id,
         })
 
     }
@@ -149,6 +167,8 @@ impl Game {
         Self {
             rules,
             burger: Option::None,
+            seq: Option::None,
+            rule_stack: Vec::new(),
         }
     }
 
@@ -170,7 +190,7 @@ impl Game {
     pub fn draw(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
         if self.burger.is_some() {
             let burger = self.burger.as_mut().unwrap();
-            burger.draw(window, ing);
+            burger.draw(window, ing)?;
         }
         for grammar in &mut self.rules {
             grammar.draw(window, ing)?;
@@ -179,8 +199,8 @@ impl Game {
     }
 
     pub fn as_grammar(&self) -> Grammar<BurgerItem> {
-        let rules = self.rules.iter()
-            .map(|i| i.as_rule())
+        let rules = self.rules.iter().enumerate()
+            .map(|(idx, i)| i.as_rule(idx as usize))
             .filter(|i|i.is_some())
             .map(|i|i.unwrap())
             .collect();
@@ -193,13 +213,53 @@ impl Game {
 
     pub fn set_burger(&mut self, b: &BurgerAnimSeq) -> Result<()> {
         self.burger = Some(b.clone());
+        let mut g = self.as_grammar();
+        g.build().unwrap();
+        let abt = g.parse(b.burger.toks.clone()).unwrap();
+        self.seq = Some(abt.to_delta_seq());
         Ok(())
     }
 
     pub fn step_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
+        use self::AnimDelta::*;
         if self.burger.is_none() { return Ok(()); }
-        let burger_seq = self.burger.as_mut().unwrap();
-        burger_seq.step(ingr);
+        let seq = self.seq.as_mut().unwrap();
+        let delta = seq.first().cloned().unwrap();
+        drop(seq);
+        println!("{:#?}", delta);
+        match delta {
+            Incr => {
+                let rule_id = self.rule_stack.last();
+                match rule_id {
+                    Some(rule_id) => {
+                        let rule = self.get_mut(*rule_id).unwrap();
+                        rule.step();
+                    }
+                    Option::None => (),
+                }
+            }
+            StepAnim => {
+                let burger_seq = self.burger.as_mut().unwrap();
+                burger_seq.step(ingr)?;
+            }
+            EnterPtr(id) => {
+                self.rule_stack.push(id);
+                let rule = self.get_mut(id).unwrap();
+                rule.pointer.push(5);
+            },
+            Noop => {
+                //
+            },
+            ExitPtr(id) => {
+                self.rule_stack.pop();
+                let rule = self.get_mut(id).unwrap();
+                rule.pointer.pop();
+            },
+        };
+        drop(delta);
+        let seq = self.seq.as_mut().unwrap();
+        seq.remove(0);
+
         Ok(())
     }
 }

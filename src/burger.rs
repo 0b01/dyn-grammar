@@ -146,7 +146,7 @@ impl Level for LandSeaAndAir {
 
 #[derive(Clone)]
 pub struct Burger {
-    toks: Vec<Token<BurgerItem>>,
+    pub toks: Vec<Token<BurgerItem>>,
 }
 
 impl Burger {
@@ -205,7 +205,7 @@ impl Burger {
 #[derive(Clone)]
 pub struct BurgerAnimSeq {
     current_t: f64,
-    burger: Burger,
+    pub burger: Burger,
     idx: usize,
     static_idx: usize,
     drawing: Option<BurgerItem>,
