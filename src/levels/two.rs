@@ -13,7 +13,7 @@ impl Level for Two {
     }
 
     fn description() -> &'static str {
-        "The WcChicken is placed directly inside The Big Wack."
+        "The McChicken is placed directly inside The Big Mac."
     }
 
     fn orders() -> [Burger; 10] {

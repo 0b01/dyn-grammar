@@ -85,7 +85,7 @@ fn test_first_set_clash() {
 #[test]
 fn test_ab() {
     // Grammar:
-    // S -> a A b B.
+    // S -> a A b B .
     // A -> a A .
     // B -> b B .
     // A -> .

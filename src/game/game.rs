@@ -54,12 +54,13 @@ impl Game {
     pub fn set_level(&mut self, i: usize) {
         self.level = i;
         match self.level {
-            0 => { self.orders.orders = Some(levels::tut_one::TutOne::orders()); }
-            1 => { self.orders.orders = Some(levels::tut_two::TutTwo::orders()); }
-            2 => { self.orders.orders = Some(levels::tut_three::TutThree::orders()); }
-            3 => { self.orders.orders = Some(levels::one::One::orders()); }
-            4 => { self.orders.orders = Some(levels::two::Two::orders()); }
-            5 => { self.orders.orders = Some(levels::three::Three::orders()); }
+            0 => { self.orders.orders = Some(levels::TutOne::orders()); }
+            1 => { self.orders.orders = Some(levels::TutTwo::orders()); }
+            2 => { self.orders.orders = Some(levels::TutThree::orders()); }
+            3 => { self.orders.orders = Some(levels::TutFour::orders()); }
+            4 => { self.orders.orders = Some(levels::Two::orders()); }
+            5 => { self.orders.orders = Some(levels::One::orders()); }
+            6 => { self.orders.orders = Some(levels::Three::orders()); }
             _ => unimplemented!(),
         }
     }

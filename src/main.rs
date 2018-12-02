@@ -266,7 +266,7 @@ impl State for MainState {
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
         // game.borrow_mut().set_burger(&BurgerAnimSeq::new(Burger::new()))?;
-        game.borrow_mut().set_level(2);
+        game.borrow_mut().set_level(0);
 
         Ok(MainState {
             Sprites,
