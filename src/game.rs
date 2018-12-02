@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 use crate::burger::*;
+use crate::orders::Orders;
 use crate::grammar::*;
 
 use self::BurgerItem::*;
@@ -22,6 +23,8 @@ pub struct Game {
     burger: Option<BurgerAnimSeq>,
     orig_burger: Option<BurgerAnimSeq>,
     seq: Option<Vec<AnimDelta>>,
+    orders: Orders,
+
     rule_stack: Vec<usize>,
 
     pub step_pressed: bool,
@@ -173,6 +176,7 @@ impl Game {
             rules,
             burger: Option::None,
             orig_burger: Option::None,
+            orders: Orders::new(),
             seq: Option::None,
             rule_stack: Vec::new(),
             step_pressed: false,
@@ -206,6 +210,7 @@ impl Game {
             grammar.draw(window, ing)?;
         }
         self.draw_btn(window, ing)?;
+        self.orders.draw(window, ing)?;
         Ok(())
     }
 
@@ -354,5 +359,9 @@ impl Game {
         seq.remove(0);
 
         Ok(())
+    }
+
+    pub fn mouse_move(&mut self, v: &Vector) {
+        self.orders.mouse_move(v);
     }
 }

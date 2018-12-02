@@ -24,6 +24,7 @@ impl Sprites {
             "playup", "playdown", "playdisabled",
             "stopup", "stopdown",
             "pointer",
+            "order", "orderhover", "orderselect"
 
         ]);
 

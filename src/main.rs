@@ -11,6 +11,7 @@ mod burger;
 mod animation;
 mod ingredients;
 mod game;
+mod orders;
 mod prelude;
 use crate::prelude::*;
 // use self::animation::Animation;
@@ -314,7 +315,7 @@ impl State for MainState {
 
                 let v = window.mouse().pos();
 
-                // println!("{:?}", v);
+                println!("{:?}", v);
                 self.pos_x = v.x;
                 self.pos_y = v.y;
 
@@ -349,11 +350,12 @@ impl State for MainState {
             }
 
             Event::MouseMoved(v) => {
-                // println!("{:#?}", v);
                 if self.mouse_down {
                     self.pos_x = v.x;
                     self.pos_y = v.y;
                 }
+
+                self.game.borrow_mut().mouse_move(v);
             }
 
             _ => (),
