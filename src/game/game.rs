@@ -302,6 +302,7 @@ impl Game {
                 self.orders.set_success(self.orders.selected);
 
                 if self.orders.selected + 1 == 10 {
+                    ingr.get_sound("success").unwrap().play()?;
                     self.set_level(self.level + 1);
                     self.orders.selected = 0;
                     self.orders.clear_result();

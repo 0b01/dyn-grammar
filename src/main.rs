@@ -334,14 +334,21 @@ impl State for MainState {
                 // let burger_seq = self.burger_seq.clone();
                 let game = self.game.clone();
                 if step_pressed {
-                        self.Sprites.execute(|i| {
-                            i.set_duration(0.5)?;
-                            game.borrow_mut().step_burger(i)
-                        })?;
+                    self.Sprites.execute(|i| {
+                        i.get_sound("click").unwrap().play()?;
+                        i.set_duration(0.5)?;
+                        game.borrow_mut().step_burger(i)
+                    })?;
                 }
-                if stop_pressed { self.Sprites.execute(|i| game.borrow_mut().stop_burger(i))?; }
+                if stop_pressed {
+                    self.Sprites.execute(|i| {
+                        i.get_sound("click").unwrap().play()?;
+                        game.borrow_mut().stop_burger(i)
+                    })?;
+                }
                 if play_pressed {
                     self.Sprites.execute(|i| {
+                        i.get_sound("click").unwrap().play()?;
                         game.borrow_mut().orders.selected = 0;
                         game.borrow_mut().play_burger(i)?;
                         Ok(())

@@ -4,6 +4,7 @@ use std::collections::HashMap;
 pub struct Sprites {
     pub items: HashMap<String, Image>,
     pub anims: HashMap<String, Animation>,
+    pub sounds: HashMap<String, Sound>,
 }
 
 impl Sprites {
@@ -58,6 +59,26 @@ impl Sprites {
                 anims
             });
 
+        let sounds = vec!["click", "success"];
+
+        let sound_futs = sounds.into_iter()
+            .map(|s|
+                Sound::load(s.to_owned()+".wav")
+                .map(
+                    move |sound| (s.to_owned(), sound)
+                )
+            );
+
+        let fut_sounds = join_all(sound_futs)
+            .map(|vec| {
+                let mut sounds = HashMap::new();
+                for (src, sound) in vec.into_iter() {
+                    sounds.insert(src.to_string(), sound);
+                }
+                sounds
+            });
+
+
         let fut_items = join_all(img_futs)
             .map(|vec| {
                 let mut items = HashMap::new();
@@ -91,15 +112,19 @@ impl Sprites {
                 items
             });
 
-        let ret = fut_anim.join(fut_items)
-            .map(|(anims,items)| Sprites {
-                items, anims
+        let ret = fut_anim.join3(fut_items, fut_sounds)
+            .map(|(anims,items,sounds)| Sprites {
+                items, anims, sounds,
             });
         ret
     }
 
     pub fn get_img(&self, name: &str) -> Option<&Image> {
         self.items.get(name)
+    }
+
+    pub fn get_sound(&self, name: &str) -> Option<&Sound> {
+        self.sounds.get(name)
     }
 
 }

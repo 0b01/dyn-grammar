@@ -17,6 +17,7 @@ pub use quicksilver::{
     graphics::{Background::Img, Color, Image, Font, FontStyle},
     lifecycle::{Asset, Settings, State, Event, Window, run},
     input::{ButtonState, MouseButton, Key},
+    sound::Sound,
 };
 
 pub const SCALE: f32 = 3.75;
