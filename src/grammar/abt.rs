@@ -73,7 +73,7 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> AbstractBurgerTree<T> {
                 }
                 ret.push(AnimDelta::ExitPtr(t.0));
             }
-            IncompleteParse | WrongToken | IncompleteParse | Cyclic => {
+            IncompleteParse | WrongToken | Cyclic => {
                 ret.push(AnimDelta::PauseIndefinitely);
             }
             AdditionalTokens(i) => {

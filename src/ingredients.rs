@@ -64,6 +64,30 @@ impl Sprites {
                 for (src, img) in vec.into_iter() {
                     items.insert(src.to_string(), img);
                 }
+
+
+                items
+            });
+
+        let font_imgs = join_all((0..10)
+            .map(|i| {
+                Font::load("fonts/CourierPrime.ttf")
+                    .and_then(move |font| {
+                        let s = format!("{}", i);
+                        let style = FontStyle::new(42.0, Color::BLACK);
+                        result(font.render(&s, &style))
+                    })
+                    .map(move |img|
+                        (format!("{}", i), img)
+                    )
+            }));
+
+        let fut_items = fut_items.join(font_imgs)
+            .map(|(mut items, fonts)| {
+                // items.extend(fonts);
+                for (i, j) in fonts {
+                    items.insert(i, j);
+                }
                 items
             });
 

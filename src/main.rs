@@ -235,7 +235,6 @@ impl State for MainState {
         //     };
         // }
 
-        let game_ui = Asset::new(Image::load("game_ui.png"));
         let Sprites = Asset::new(Sprites::new());
 
         let burger = Rc::new(RefCell::new(Burger::new()));

@@ -22,7 +22,7 @@ macro_rules! burger {
 
 impl Burger {
     pub fn new() -> Self {
-        let mut toks = vec![];
+        let toks = vec![];
         Self {
             toks,
         }

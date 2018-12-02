@@ -50,11 +50,13 @@ impl Game {
     }
 
     pub fn set_level(&mut self, i: usize) {
+        let mut i = i;
+        if i > 7 { i = 7 };
         self.level = i;
         match self.level {
             0 => { self.orders.orders = Some(levels::TutOne::orders()); }
-            1 => { self.orders.orders = Some(levels::TutTwo::orders()); }
-            2 => { self.orders.orders = Some(levels::TutThree::orders()); }
+            1 => { self.orders.orders = Some(levels::TutThree::orders()); }
+            2 => { self.orders.orders = Some(levels::TutTwo::orders()); }
             3 => { self.orders.orders = Some(levels::TutFour::orders()); }
             4 => { self.orders.orders = Some(levels::Two::orders()); }
             5 => { self.orders.orders = Some(levels::Four::orders()); }
@@ -95,6 +97,21 @@ impl Game {
         }
         self.draw_btn(window, ing)?;
         self.orders.draw(window, ing)?;
+        self.draw_level_id(window, ing)?;
+        Ok(())
+    }
+
+    fn draw_level_id (&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
+        let image = ing.get_img(&format!("{}", self.level + 1)).unwrap();
+        window.draw_ex(&
+            Rectangle::new(
+                Vector::new(350., 380.),
+                Vector::new(32., 32.)
+            ),
+            Img(&image),
+            Transform::scale(Vector::new(1.5, 1.5)),
+            100,
+        );
         Ok(())
     }
 

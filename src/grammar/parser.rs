@@ -42,7 +42,7 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
     pub fn build(&mut self) -> Result<(), ABT<T>> {
         let mut temp = HashMap::new();
         for rule in &self.rules {
-            let name = rule.name.clone();
+            // let name = rule.name.clone();
             if let Some(Token::NonTerminal(n)) = rule.production.get(0) {
                 if n == &rule.name {
                     return Err(AbstractBurgerTree::Cyclic);
