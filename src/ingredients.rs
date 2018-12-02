@@ -1,12 +1,12 @@
 use crate::prelude::*;
 use std::collections::HashMap;
 
-pub struct Ingredients {
+pub struct Sprites {
     items: HashMap<String, Image>,
     anims: HashMap<String, Animation>,
 }
 
-impl Ingredients {
+impl Sprites {
 
     pub fn srcs() -> Vec<&'static str> {
         vec![
@@ -16,10 +16,11 @@ impl Ingredients {
     }
 
     pub fn new() -> impl Future<Item=Self, Error=Error> {
-        let mut srcs = Ingredients::srcs();
+        let mut srcs = Sprites::srcs();
         srcs.extend(vec![
             "ketchupbottle", "mayobottle", "bbqbottle", "ketchup", "mayo", "bbq",
             "nonterme", "nontermA", "nontermS", "nontermB", "nontermC", "buttonup", "buttondown",
+            "pointer",
 
         ]);
 
@@ -30,7 +31,7 @@ impl Ingredients {
                 )
         });
 
-        let mut anims = Ingredients::anims();
+        let mut anims = Sprites::anims();
         anims.extend(vec![
             "squeeze_bbq", "squeeze_ketchup", "squeeze_mayo",
         ]);
@@ -62,7 +63,7 @@ impl Ingredients {
             });
 
         let ret = fut_anim.join(fut_items)
-            .map(|(anims,items)| Ingredients {
+            .map(|(anims,items)| Sprites {
                 items, anims
             });
         ret
@@ -74,7 +75,7 @@ impl Ingredients {
 
 }
 
-impl Ingredients {
+impl Sprites {
 
     pub fn anims() -> Vec<&'static str> {
         vec![

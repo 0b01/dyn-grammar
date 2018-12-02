@@ -166,7 +166,7 @@ impl Burger {
     /// draw a static burger
     pub fn draw(&self,
         window: &mut Window,
-        ingredients: &mut Ingredients,
+        Sprites: &mut Sprites,
         to: Option<usize>,
     ) -> Result<()> {
         let to = to.unwrap_or(self.toks.len());
@@ -178,7 +178,7 @@ impl Burger {
                 Token::Epsilon | Token::NonTerminal(_) => {continue; }
                 Token::Terminal(burger_item) => {
                     let item = burger_item.to_str();
-                    let img = ingredients.get_img(item).unwrap();
+                    let img = Sprites.get_img(item).unwrap();
                     window.draw_ex(&
                         Rectangle::new(
                             Vector::new( init_x, init_y - i * dy ),
@@ -227,15 +227,15 @@ impl BurgerAnimSeq {
     pub fn draw(
         &mut self,
         window: &mut Window,
-        ingredients: &mut Ingredients,
+        Sprites: &mut Sprites,
     ) -> Result<()> {
 
         let dy = 13.;
-        ingredients.draw_anim(window, 561., 210. - self.idx as f32 * dy, 3.)?;
+        Sprites.draw_anim(window, 561., 210. - self.idx as f32 * dy, 3.)?;
 
         if self.drawing.is_some() {
             let anim = self.drawing.as_ref().unwrap().to_anim_str();
-            let played = ingredients.get_anim_mut(anim).unwrap().played;
+            let played = Sprites.get_anim_mut(anim).unwrap().played;
             if played {
                 println!("Done playing", );
                 self.static_idx += 1;
@@ -244,18 +244,18 @@ impl BurgerAnimSeq {
                     self.play_continuous = false;
                 }
                 if self.play_continuous {
-                    self.step(ingredients)?;
+                    self.step(Sprites)?;
                 }
             }
         }
-        self.burger.draw(window, ingredients, Some(self.static_idx))?;
+        self.burger.draw(window, Sprites, Some(self.static_idx))?;
 
         Ok(())
     }
 
     pub fn step(
         &mut self,
-        ingr: &mut Ingredients,
+        ingr: &mut Sprites,
     ) -> Result<()> {
         if self.drawing.is_some() { return Ok(()); }
         if let Token::Terminal(itm) = &self.burger.toks[self.idx] {
@@ -270,7 +270,7 @@ impl BurgerAnimSeq {
 
     pub fn cont(
         &mut self,
-        ing: &mut Ingredients,
+        ing: &mut Sprites,
     ) -> Result<()> {
         self.idx = 0;
         self.static_idx = 0;

@@ -1,6 +1,6 @@
 use quicksilver;
 
-pub use crate::ingredients::{Ingredients};
+pub use crate::ingredients::{Sprites};
 pub use crate::animation::Animation;
 pub use crate::burger::{BurgerAnimSeq, Burger};
 

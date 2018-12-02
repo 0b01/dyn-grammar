@@ -14,14 +14,14 @@ mod game;
 mod prelude;
 use crate::prelude::*;
 // use self::animation::Animation;
-use self::ingredients::Ingredients;
+use self::ingredients::Sprites;
 use self::burger::{BurgerItem, Burger};
 use self::game::{Game, GameBurgerRule};
 
 extern crate quicksilver;
 
 struct MainState {
-    ingredients: Asset<Ingredients>,
+    Sprites: Asset<Sprites>,
 
     game_ui: Asset<Image>,
 
@@ -50,7 +50,7 @@ impl MainState {
 
             macro_rules! ing {
                 ($name: expr) => {
-                    self.ingredients.execute(|ing| {
+                    self.Sprites.execute(|ing| {
                         let img = ing.get_img($name).unwrap();
                         window.draw_ex(&
                             Rectangle::new(
@@ -84,7 +84,7 @@ impl MainState {
                     ing!("nontermS");
                 }
                 _ => {
-                    self.ingredients.execute(|ing| {
+                    self.Sprites.execute(|ing| {
                         let img = ing.get_img(item).unwrap();
                         window.draw_ex(&
                             Rectangle::new(
@@ -109,14 +109,14 @@ impl MainState {
             window.draw(&image.area(), Img(&image));
             Ok(())
         })?;
-        self.draw_ingredients(window)?;
+        self.draw_Sprites(window)?;
         self.draw_btn(window)?;
         Ok(())
     }
 
     fn draw_btn(&mut self, window: &mut Window) -> Result<()> {
         let pressed = self.play_pressed;
-        self.ingredients.execute(|ing| {
+        self.Sprites.execute(|ing| {
             let image = if pressed {
                 ing.get_img("buttondown").unwrap()
             } else {
@@ -136,14 +136,14 @@ impl MainState {
         Ok(())
     }
 
-    fn draw_ingredients(&mut self, window: &mut Window) -> Result<()> {
+    fn draw_Sprites(&mut self, window: &mut Window) -> Result<()> {
         let objheight = 40.;
         let objwidth = 100.;
         let init_x = 340.;
         let init_y = 425.;
         let n_per_line = 5;
 
-        self.ingredients.execute(|ing| {
+        self.Sprites.execute(|ing| {
             let image = ing.get_img("nontermS").unwrap();
             window.draw_ex(&
                 Rectangle::new(
@@ -157,7 +157,7 @@ impl MainState {
             Ok(())
         })?;
 
-        self.ingredients.execute(|ing| {
+        self.Sprites.execute(|ing| {
             let image = ing.get_img("nonterme").unwrap();
             window.draw_ex(&
                 Rectangle::new(
@@ -171,7 +171,7 @@ impl MainState {
             Ok(())
         })?;
 
-        self.ingredients.execute(|ing| {
+        self.Sprites.execute(|ing| {
             let image = ing.get_img("nontermA").unwrap();
             window.draw_ex(&
                 Rectangle::new(
@@ -185,7 +185,7 @@ impl MainState {
             Ok(())
         })?;
 
-        self.ingredients.execute(|ing| {
+        self.Sprites.execute(|ing| {
             let image = ing.get_img("nontermB").unwrap();
             window.draw_ex(&
                 Rectangle::new(
@@ -199,7 +199,7 @@ impl MainState {
             Ok(())
         })?;
 
-        self.ingredients.execute(|ing| {
+        self.Sprites.execute(|ing| {
             let image = ing.get_img("nontermC").unwrap();
             window.draw_ex(&
                 Rectangle::new(
@@ -215,9 +215,9 @@ impl MainState {
 
 
 
-        self.ingredients.execute(
+        self.Sprites.execute(
             |ing| {
-                let srcs = Ingredients::srcs();
+                let srcs = Sprites::srcs();
                 // draw slices
                 for (i, src) in srcs.iter().enumerate() { let img = ing.get_img(src).unwrap();
                     let x = (i % n_per_line) as f32 * objwidth;
@@ -266,7 +266,7 @@ impl State for MainState {
         // }
 
         let game_ui = Asset::new(Image::load("game_ui.png"));
-        let ingredients = Asset::new(Ingredients::new());
+        let Sprites = Asset::new(Sprites::new());
 
         let burger = Rc::new(RefCell::new(Burger::new()));
         let burger_seq = Rc::new(RefCell::new( BurgerAnimSeq::new(burger.borrow().clone()) ));
@@ -290,7 +290,7 @@ impl State for MainState {
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
         Ok(MainState {
-            ingredients,
+            Sprites,
             burger,
             burger_seq,
             pos_x,
@@ -305,7 +305,7 @@ impl State for MainState {
 
     fn update(&mut self, window: &mut Window) -> Result<()> {
         // self.animation.execute(|anim| anim.update(window))?;
-        self.ingredients.execute(|ing| ing.update_anim(window))?;
+        self.Sprites.execute(|ing| ing.update_anim(window))?;
         Ok(())
     }
 
@@ -316,13 +316,13 @@ impl State for MainState {
 
         let burger_seq = Rc::clone(&self.burger_seq);
         let game = Rc::clone(&self.game);
-        self.ingredients.execute(|ingr|{
+        self.Sprites.execute(|ingr|{
             burger_seq.borrow_mut().draw(window, ingr)?;
             game.borrow_mut().draw(window, ingr)?;
             Ok(())
         })?;
 
-        // self.burger.draw(window, &mut self.ingredients)?;
+        // self.burger.draw(window, &mut self.Sprites)?;
 
         Ok(())
 
@@ -347,7 +347,7 @@ impl State for MainState {
                 let burger_seq = self.burger_seq.clone();
                 let game = self.game.clone();
                 if self.play_pressed {
-                    self.ingredients.execute(|i| {
+                    self.Sprites.execute(|i| {
                         burger_seq.borrow_mut().step(i)?;
                         let mut g = game.borrow().as_grammar();
                         g.build().unwrap();
@@ -432,7 +432,7 @@ fn start_drag_item(mouse: &Vector) -> Option<BurgerItem> {
             return Some(item.clone());
         }
     }
-    ::std::option::Option::None
+    Option::None
 }
 
 fn main() {

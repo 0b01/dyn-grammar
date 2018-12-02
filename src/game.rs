@@ -15,6 +15,7 @@ pub struct GameBurgerRule {
     pub items: [BurgerItem; 5],
     pub top_left: Vector,
     pub id: u32,
+    pub pointer: Option<usize>,
 }
 
 pub struct Game {
@@ -28,6 +29,7 @@ impl GameBurgerRule {
             items: [None; 5],
             top_left,
             id,
+            pointer: Option::None,
         }
     }
 
@@ -61,7 +63,7 @@ impl GameBurgerRule {
         }
     }
 
-    pub fn draw(&mut self, window: &mut Window, ing: &Ingredients) -> Result<()> {
+    pub fn draw(&mut self, window: &mut Window, ing: &Sprites) -> Result<()> {
         let title = self.name.to_str();
         if title != "" {
             let image = ing.get_img(title).unwrap();
@@ -92,12 +94,30 @@ impl GameBurgerRule {
                 100,
             );
         }
+        self.pointer = Some(1);
+
+        if self.pointer.is_some() {
+            let img = ing.get_img("pointer").unwrap();
+            let i = self.pointer.unwrap();
+            window.draw_ex(&
+                Rectangle::new(
+                    Vector::new(
+                        self.top_left.x - 32.,
+                        self.top_left.y + TITLE_HEIGHT + 4. + i as f32 * LINE_HEIGHT),
+                    Vector::new(32., 32.)
+                ),
+                Img(&img),
+                Transform::scale(Vector::new(0.7, 0.7)),
+                100,
+            );
+        }
+
         Ok(())
     }
 
     pub fn as_rule(&self) -> Option<Rule<BurgerItem>> {
         if self.name == None {
-            return ::std::option::Option::None;
+            return Option::None;
         }
         let mut production = vec![];
         if self.items.iter().all(|i| *i == None) {production.push(Token::Epsilon)} else {
@@ -146,7 +166,7 @@ impl Game {
         }
     }
 
-    pub fn draw(&mut self, window: &mut Window, ing: &Ingredients) -> Result<()> {
+    pub fn draw(&mut self, window: &mut Window, ing: &Sprites) -> Result<()> {
         for grammar in &mut self.rules {
             grammar.draw(window, ing)?;
         }
