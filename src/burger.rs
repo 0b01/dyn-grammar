@@ -154,10 +154,8 @@ impl Burger {
         use self::BurgerItem::*;
         let mut toks = vec![];
         toks.push(Token::Terminal(BottomBun));
-        toks.push(Token::Terminal(Beef));
-        toks.push(Token::Terminal(Cheese));
-        toks.push(Token::Terminal(Lettuce));
-        toks.push(Token::Terminal(Ketchup));
+        toks.push(Token::Terminal(BottomBun));
+        toks.push(Token::Terminal(TopBun));
         toks.push(Token::Terminal(TopBun));
 
         Self {

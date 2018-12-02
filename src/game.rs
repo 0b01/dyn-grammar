@@ -10,7 +10,7 @@ const LINE_HEIGHT: f32 = 45.;
 const HEIGHT: f32 = 260.;
 const WIDTH: f32 = 70.;
 
-pub struct GameGrammar {
+pub struct GameBurgerRule {
     pub name: BurgerItem,
     pub items: [BurgerItem; 5],
     pub top_left: Vector,
@@ -18,10 +18,10 @@ pub struct GameGrammar {
 }
 
 pub struct Game {
-    rules: Vec<GameGrammar>,
+    rules: Vec<GameBurgerRule>,
 }
 
-impl GameGrammar {
+impl GameBurgerRule {
     pub fn new(top_left: Vector, id: u32) -> Self {
         Self {
             name: None,
@@ -100,14 +100,17 @@ impl GameGrammar {
             return ::std::option::Option::None;
         }
         let mut production = vec![];
-        for i in &self.items {
-            if *i == None {
-                production.push(Token::Epsilon);
-            } else if i.is_nonterm() {
-                production.push(Token::NonTerminal(i.to_str().to_owned()));
-            } else {
-                production.push(Token::Terminal(*i))
+        if self.items.iter().all(|i| *i == None) {production.push(Token::Epsilon)} else {
+            for i in &self.items {
+                if *i == None {
+                    // production.push(Token::Epsilon);
+                } else if i.is_nonterm() {
+                    production.push(Token::NonTerminal(i.to_str().to_owned()));
+                } else {
+                    production.push(Token::Terminal(*i))
+                }
             }
+            production.reverse();
         }
 
         Some(Rule {
@@ -122,17 +125,17 @@ impl GameGrammar {
 
 impl Game {
 
-    pub fn new(rules: Vec<GameGrammar>) -> Self {
+    pub fn new(rules: Vec<GameBurgerRule>) -> Self {
         Self {
             rules,
         }
     }
 
-    pub fn get(&self, idx: usize) -> Option<&GameGrammar> {
+    pub fn get(&self, idx: usize) -> Option<&GameBurgerRule> {
         self.rules.get(idx)
     }
 
-    pub fn get_mut(&mut self, idx: usize) -> Option<&mut GameGrammar> {
+    pub fn get_mut(&mut self, idx: usize) -> Option<&mut GameBurgerRule> {
         self.rules.get_mut(idx)
     }
 
@@ -158,12 +161,8 @@ impl Game {
             .collect();
 
         Grammar::new(
-            "S".to_owned(),
+            BurgerItem::NonTermS.to_str().to_owned(),
             rules,
         )
-
-        // g.build().unwrap();
-
     }
-
 }

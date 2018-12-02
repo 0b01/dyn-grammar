@@ -16,7 +16,7 @@ use crate::prelude::*;
 // use self::animation::Animation;
 use self::ingredients::Ingredients;
 use self::burger::{BurgerItem, Burger};
-use self::game::{Game, GameGrammar};
+use self::game::{Game, GameBurgerRule};
 
 extern crate quicksilver;
 
@@ -275,10 +275,17 @@ impl State for MainState {
         let pos_y = 0.;
 
         let mut grams = Vec::new();
-        grams.push(GameGrammar::new(Vector::new(45., 20.  ), 0));
-        grams.push(GameGrammar::new(Vector::new(152., 20. ), 1));
-        grams.push(GameGrammar::new(Vector::new(45., 310. ), 2));
-        grams.push(GameGrammar::new(Vector::new(152., 310.), 3));
+        let mut g1 = GameBurgerRule::new(Vector::new(45., 20.  ), 0);
+        g1.set_name(BurgerItem::NonTermS);
+        g1.set_item(0, BurgerItem::TopBun);
+        g1.set_item(1, BurgerItem::NonTermS);
+        g1.set_item(2, BurgerItem::BottomBun);
+        let mut g2 = GameBurgerRule::new(Vector::new(152., 20. ), 1);
+        g2.set_name(BurgerItem::NonTermS);
+        grams.push(g1);
+        grams.push(g2);
+        grams.push(GameBurgerRule::new(Vector::new(45., 310. ), 2));
+        grams.push(GameBurgerRule::new(Vector::new(152., 310.), 3));
 
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
