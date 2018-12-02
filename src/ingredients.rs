@@ -59,7 +59,7 @@ impl Sprites {
                 anims
             });
 
-        let sounds = vec!["click", "success"];
+        let sounds = vec!["click", "success", "switch"];
 
         let sound_futs = sounds.into_iter()
             .map(|s|

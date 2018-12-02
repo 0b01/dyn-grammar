@@ -66,12 +66,15 @@ impl Game {
         }
     }
 
-    pub fn drop_item(&mut self, v: &Vector, itm: Option<BurgerItem>) {
-        if !self.rule_stack.is_empty() {return;}
+    pub fn drop_item(&mut self, v: &Vector, itm: Option<BurgerItem>) -> bool {
+        if !self.rule_stack.is_empty() {return false;}
         for grammar in &mut self.rules {
             let itm = itm.unwrap_or(BurgerItem::None); // remove item if empty
-            grammar.set_item_with_pos(v, itm);
+            if grammar.set_item_with_pos(v, itm) {
+                return true;
+            }
         }
+        return false
     }
 
     pub fn draw(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {

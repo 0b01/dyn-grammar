@@ -34,7 +34,7 @@ impl GameBurgerRule {
         self.items[idx] = i;
     }
 
-    pub fn set_item_with_pos(&mut self, p: &Vector, i: BurgerItem) {
+    pub fn set_item_with_pos(&mut self, p: &Vector, i: BurgerItem) -> bool {
         // if i.is_nonterm() {
         //     if p.x > self.top_left.x && p.x < self.top_left.x + WIDTH
         //     && p.y > self.top_left.y && p.y < self.top_left.y + HEIGHT {
@@ -49,11 +49,14 @@ impl GameBurgerRule {
             if nth == -1. && (i.is_nonterm() || i == None)
             && !(self.top_left.x == 45. && self.top_left.y == 20.) { // cannot be top left
                 self.name = i;
+                return true
             }
             if nth >= 0. {
                 self.items[nth as usize] = i;
+                return true
             }
         }
+        return false;
     }
 
     pub fn draw(&mut self, window: &mut Window, ing: &Sprites) -> Result<()> {

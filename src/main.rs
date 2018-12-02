@@ -335,14 +335,18 @@ impl State for MainState {
                 let game = self.game.clone();
                 if step_pressed {
                     self.Sprites.execute(|i| {
-                        i.get_sound("click").unwrap().play()?;
+                        if !game.borrow_mut().pause {
+                            i.get_sound("click").unwrap().play()?;
+                        }
                         i.set_duration(0.5)?;
                         game.borrow_mut().step_burger(i)
                     })?;
                 }
                 if stop_pressed {
                     self.Sprites.execute(|i| {
-                        i.get_sound("click").unwrap().play()?;
+                        if !game.borrow_mut().pause {
+                            i.get_sound("click").unwrap().play()?;
+                        }
                         game.borrow_mut().stop_burger(i)
                     })?;
                 }
@@ -362,7 +366,9 @@ impl State for MainState {
                 ButtonState::Released
             ) => {
                 let v = window.mouse().pos();
-                self.game.borrow_mut().drop_item(&v, self.holding);
+                if self.game.borrow_mut().drop_item(&v, self.holding) {
+                    self.Sprites.execute(|i| i.get_sound("switch").unwrap().play())?;
+                }
 
                 self.mouse_down = false;
                 self.holding = None;
