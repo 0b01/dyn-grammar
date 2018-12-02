@@ -198,7 +198,7 @@ impl Game {
         println!("fn play burger");
         self.stop_burger(ingr)?;
         self.build()?;
-        ingr.set_duration(0.2)?;
+        ingr.set_duration(0.14)?;
         self.continuous = true;
 
         if !self.is_anim_playing() {
@@ -277,9 +277,14 @@ impl Game {
                 if self.orders.selected + 1 == 10 {
                     self.set_level(self.level + 1);
                     self.orders.selected = 0;
-                } else {
+                } else{
                     self.orders.selected += 1;
+                }
+
+                if self.continuous {
                     self.play_burger(ingr)?;
+                } else {
+                    self.stop_burger(ingr)?;
                 }
             }
         };

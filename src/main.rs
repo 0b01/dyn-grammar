@@ -266,7 +266,7 @@ impl State for MainState {
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
         // game.borrow_mut().set_burger(&BurgerAnimSeq::new(Burger::new()))?;
-        game.borrow_mut().set_level(0);
+        game.borrow_mut().set_level(2);
 
         Ok(MainState {
             Sprites,
@@ -330,14 +330,19 @@ impl State for MainState {
 
                 // let burger_seq = self.burger_seq.clone();
                 let game = self.game.clone();
-                if step_pressed { self.Sprites.execute(|i| game.borrow_mut().step_burger(i))?; }
+                if step_pressed {
+                        self.Sprites.execute(|i| {
+                            i.set_duration(0.5)?;
+                            game.borrow_mut().step_burger(i)
+                        })?;
+                }
                 if stop_pressed { self.Sprites.execute(|i| game.borrow_mut().stop_burger(i))?; }
                 if play_pressed {
                     self.Sprites.execute(|i| {
                         game.borrow_mut().orders.selected = 0;
                         game.borrow_mut().play_burger(i)?;
                         Ok(())
-                    });
+                    })?;
                 }
                 self.mouse_down = true;
             }
