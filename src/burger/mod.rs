@@ -1,4 +1,4 @@
-pub mod burger;
+#[macro_use] pub mod burger;
 pub mod anim;
 pub mod items;
 

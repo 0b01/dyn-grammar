@@ -5,13 +5,11 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
-#[macro_use]
-mod grammar;
-mod burger;
+#[macro_use] mod grammar;
+#[macro_use] mod burger;
 mod animation;
 mod ingredients;
 mod game;
-mod orders;
 mod levels;
 mod prelude;
 use crate::prelude::*;

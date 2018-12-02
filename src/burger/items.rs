@@ -1,6 +1,3 @@
-use crate::prelude::*;
-use crate::grammar::parser::Token;
-
 #[derive(Clone, Hash, Eq, PartialEq, Debug, Copy)]
 pub enum BurgerItem {
     TopBun,

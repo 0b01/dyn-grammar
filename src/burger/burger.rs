@@ -7,18 +7,32 @@ pub struct Burger {
     pub toks: Vec<Token<BurgerItem>>,
 }
 
+macro_rules! burger {
+    ($($i: ident),*) => {
+        {
+            let mut b = Burger::new();
+            $(
+                b.push(Token::Terminal(BurgerItem::$i));
+            )*
+            b.reverse();
+            b
+        }
+    };
+}
+
 impl Burger {
     pub fn new() -> Self {
-        use self::BurgerItem::*;
         let mut toks = vec![];
-        toks.push(Token::Terminal(BottomBun));
-        toks.push(Token::Terminal(BottomBun));
-        toks.push(Token::Terminal(TopBun));
-        toks.push(Token::Terminal(TopBun));
-
         Self {
             toks,
         }
+    }
+
+    pub fn reverse(&mut self) {
+        self.toks.reverse();
+    }
+    pub fn push(&mut self, i: Token<BurgerItem>) {
+        self.toks.push(i);
     }
 
     /// draw a static burger
