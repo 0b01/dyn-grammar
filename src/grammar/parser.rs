@@ -39,11 +39,21 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
         }
     }
 
-    pub fn build(&mut self) -> Result<(), &'static str> {
+    pub fn build(&mut self) -> Result<(), ABT<T>> {
         let mut temp = HashMap::new();
         for rule in &self.rules {
             let name = rule.name.clone();
+            if let Some(Token::NonTerminal(n)) = rule.production.get(0) {
+                if n == &rule.name {
+                    return Err(AbstractBurgerTree::Cyclic);
+                }
+            }
+        }
+
+        for rule in &self.rules {
+            let name = rule.name.clone();
             let first_set_for_rule = self.first_set(&name);
+            // NOTE: for the game we allow first set clashes!!!
             // check first set clashes
             // println!("{}--------------", name);
             // println!("{:?}", first_set_for_rule);

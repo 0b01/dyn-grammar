@@ -4,9 +4,9 @@ use crate::prelude::*;
 /// N -> beef S beef .
 /// N -> chicken .
 /// S -> .
-pub struct WcGangbang;
+pub struct Two;
 
-impl Level for WcGangbang {
+impl Level for Two {
 
     fn name() -> &'static str {
         "El McGangbang"

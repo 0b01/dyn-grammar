@@ -1,8 +1,8 @@
 use crate::prelude::*;
 
-pub struct LandSeaAndAir;
+pub struct Three;
 
-impl Level for LandSeaAndAir {
+impl Level for Three {
     fn name() -> &'static str {
         "Land, Sea, and Air"
     }

@@ -1,11 +1,11 @@
 use crate::prelude::*;
 
-/// S -> top cheese beef cheese beef N bottom .
-/// N -> cheese beef cheese beef N .
+/// S -> top beef beef N bottom .
+/// N -> beef beef N .
 /// N -> .
-pub struct DoubleCheeseburger;
+pub struct One;
 
-impl Level for DoubleCheeseburger {
+impl Level for One {
     fn name() -> &'static str {
         "DoubleCheeseburger"
     }
@@ -16,16 +16,16 @@ impl Level for DoubleCheeseburger {
 
     fn orders() -> [Burger; 10] {
         [
-            burger!(TopBun, BottomBun),
             burger!(TopBun, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, BottomBun),
             burger!(TopBun, Beef, Beef, Beef, Beef, BottomBun),
             burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
             burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, BottomBun),
-            burger!(TopBun, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
         ]
     }
 }

@@ -46,7 +46,8 @@ impl GameBurgerRule {
         && p.y > self.top_left.y && p.y < self.top_left.y + HEIGHT {
             let ratio = (p.y - self.top_left.y - TITLE_HEIGHT) / (HEIGHT - TITLE_HEIGHT);
             let nth = (ratio * 5.).floor();
-            if nth == -1. && (i.is_nonterm() || i == None) {
+            if nth == -1. && (i.is_nonterm() || i == None)
+            && !(self.top_left.x == 45. && self.top_left.y == 20.) { // cannot be top left
                 self.name = i;
             }
             if nth >= 0. {

@@ -3,20 +3,21 @@ use crate::prelude::*;
 use crate::burger::*;
 use crate::game::{Orders, GameBurgerRule};
 use crate::grammar::*;
+use crate::levels;
+
 
 
 pub struct Game {
-    rules: Vec<GameBurgerRule>,
-    burg_anim: Option<BurgerAnimSeq>,
-    seq: Option<Vec<AnimDelta>>,
-    orders: Orders,
-    level: usize,
-    continuous: bool,
+    pub rules: Vec<GameBurgerRule>,
+    pub burg_anim: Option<BurgerAnimSeq>,
+    pub seq: Option<Vec<AnimDelta>>,
+    pub orders: Orders,
+    pub level: usize,
+    pub continuous: bool,
+    pub rule_stack: Vec<usize>,
+    pub pause: bool,
 
-    rule_stack: Vec<usize>,
-    pause: bool,
-
-    is_debugging: bool,
+    pub is_debugging: bool,
 
     pub step_pressed: bool,
     pub stop_pressed: bool,
@@ -53,9 +54,12 @@ impl Game {
     pub fn set_level(&mut self, i: usize) {
         self.level = i;
         match self.level {
-            0 => { self.orders.orders = Some(crate::levels::one::DoubleCheeseburger::orders()); }
-            1 => { self.orders.orders = Some(crate::levels::two::WcGangbang::orders()); }
-            2 => { self.orders.orders = Some(crate::levels::three::LandSeaAndAir::orders()); }
+            0 => { self.orders.orders = Some(levels::tut_one::TutOne::orders()); }
+            1 => { self.orders.orders = Some(levels::tut_two::TutTwo::orders()); }
+            2 => { self.orders.orders = Some(levels::tut_three::TutThree::orders()); }
+            3 => { self.orders.orders = Some(levels::one::One::orders()); }
+            4 => { self.orders.orders = Some(levels::two::Two::orders()); }
+            5 => { self.orders.orders = Some(levels::three::Three::orders()); }
             _ => unimplemented!(),
         }
     }
@@ -87,7 +91,7 @@ impl Game {
     }
 
     fn draw_btn(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
-        let image = if self.seq.is_some() && self.seq.as_ref().unwrap().is_empty() {
+        let image = if self.pause {
             ing.get_img("stepdisabled").unwrap()
         } else if self.step_pressed {
             ing.get_img("stepdown").unwrap()
@@ -104,7 +108,7 @@ impl Game {
             100,
         );
 
-        let image = if self.seq.is_some() && self.seq.as_ref().unwrap().is_empty() {
+        let image = if self.pause {
             ing.get_img("playdisabled").unwrap()
         } else if self.play_pressed {
             ing.get_img("playdown").unwrap()
@@ -164,27 +168,37 @@ impl Game {
 
         let mut g = self.as_grammar();
 
-        g.build().unwrap();
-        let abt = g.parse(canonical_bg.toks.clone()).unwrap_or_else(|t|t);
+        let abt = match g.build() {
+            Err(e) => e,
+            Ok(()) => {
+                g.parse(canonical_bg.toks.clone())
+                    .unwrap_or_else(|t|t)
+            }
+        };
         let my_bg = abt.to_burger();
-        // println!("{:#?}", abt);
-        // println!("{:#?}", my_bg);
+        println!("{:#?}", abt);
+        println!("{:#?}", my_bg);
 
-        self.is_correct = &my_bg == canonical_bg;
 
         let anim = BurgerAnimSeq::new(my_bg.clone());
         self.burg_anim = Some(anim.clone());
 
         // println!("{:#?}", abt);
-        self.seq = Some(abt.to_delta_seq());
+        let mut seq = abt.to_delta_seq();
+        if &my_bg != canonical_bg {
+            seq.push(AnimDelta::PauseIndefinitely);
+        } else {
+            seq.push(AnimDelta::Success);
+        }
+        self.seq = Some(seq);
         Ok(())
     }
 
     pub fn play_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
         println!("fn play burger");
-
+        self.stop_burger(ingr)?;
         self.build()?;
-        ingr.set_duration(0.3)?;
+        ingr.set_duration(0.2)?;
         self.continuous = true;
 
         if !self.is_anim_playing() {
@@ -215,8 +229,6 @@ impl Game {
         if !self.is_debugging { self.build()? }
         if self.is_anim_playing() { return Ok(()); }
         use self::AnimDelta::*;
-
-        ingr.set_duration(0.4)?;
 
         let seq = self.seq.as_mut().unwrap();
         let delta = seq.first().cloned();
@@ -260,7 +272,18 @@ impl Game {
             PauseIndefinitely => {
                 self.pause = true;
             }
+            Success => {
+                println!("SUCCESS!");
+                if self.orders.selected + 1 == 10 {
+                    self.set_level(self.level + 1);
+                    self.orders.selected = 0;
+                } else {
+                    self.orders.selected += 1;
+                    self.play_burger(ingr)?;
+                }
+            }
         };
+
         drop(delta);
         let seq = self.seq.as_mut().unwrap();
         seq.remove(0);
@@ -269,6 +292,7 @@ impl Game {
     }
 
     pub fn mouse_move(&mut self, v: &Vector) {
+        if self.is_debugging { return; }
         match self.orders.mouse_move(v) {
             Option::None => (),
             Some(_) => self.build().unwrap(),

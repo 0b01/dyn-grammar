@@ -274,3 +274,58 @@ fn test_abc() {
     assert!(g.parse(sentence!(c, b, a)).is_err());
     assert!(g.parse(sentence!(c, a)).is_err());
 }
+
+#[test]
+fn test_stackoverflow() {
+    let mut g = Grammar::new(
+        "S".to_owned(),
+        vec![
+            Rule {
+                name: "S".to_owned(),
+                id: 0,
+                production: vec![
+                    NonTerminal("S".to_owned()),
+                    Terminal("a"),
+                    Terminal("b"),
+                ]
+            },
+            Rule {
+                name: "S".to_owned(),
+                id: 1,
+                production: vec![
+                    Epsilon,
+                ]
+            }
+        ]
+    );
+    assert!(g.build().is_err());
+}
+
+#[test]
+fn test_stackoverflow_other_case() {
+    let mut g = Grammar::new(
+        "S".to_owned(),
+        vec![
+            Rule {
+                name: "S".to_owned(),
+                id: 0,
+                production: vec![
+                    Terminal("a"),
+                    NonTerminal("S".to_owned()),
+                    Terminal("b"),
+                ]
+            },
+            Rule {
+                name: "S".to_owned(),
+                id: 1,
+                production: vec![
+                    NonTerminal("S".to_owned()),
+                    Terminal("a"),
+                    Terminal("a"),
+                    Epsilon,
+                ]
+            }
+        ]
+    );
+    assert!(g.build().is_err());
+}
