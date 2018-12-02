@@ -70,6 +70,7 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
         }
 
         self.first_sets = Some(temp);
+        println!("{:#?}", self.first_sets);
 
         Ok(())
     }
@@ -87,7 +88,8 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
     fn parse_aux(&self, name: &str, sent: &mut Vec<Token<T>>) -> Result<ABT<T>, ABT<T>> {
         let mut sent = sent;
         let firsts = self.first_sets.as_ref().map(|i|i.get(name).unwrap()).unwrap();
-        // println!("Parsing rule {} with {:?}", name, sent);
+        println!("First Set for {}: {:#?}", name, firsts);
+        println!("Parsing rule {} with {:?}", name, sent);
 
         let (mut prod, rule_id) = if sent.is_empty() {
             match firsts.iter().find(|prod| prod.0 == Epsilon) {
@@ -105,7 +107,7 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
                     }
             }
         };
-        // println!("Found: {:?}", prod);
+        println!("Found: {:?}", prod);
         self.match_rule(&mut sent, &mut prod, rule_id)
     }
 
@@ -121,11 +123,11 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
             rule.remove(0);
             let abt = match t {
                 Epsilon => {
-                    // println!("Matching Epsilon");
+                    println!("Matching Epsilon");
                     AbstractBurgerTree::Term(Epsilon)
                 }
                 Terminal(ref term) => {
-                    // println!("Matching {:?}", term);
+                    println!("Matching {:?}", term);
                     if let Some(sent_tok) = sent.get(0) {
                         if sent_tok.clone() == t {
                             sent.remove(0);
@@ -153,7 +155,12 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
             let first_tok = rule.production[0].clone();
             match first_tok {
                 Terminal(_) | Epsilon => {ret.insert((first_tok, rule.clone()));}
-                NonTerminal(s) => ret.extend(self.first_set(&s)),
+                NonTerminal(s) => {
+                    let inner = self.first_set(&s);
+                    for r in &inner {
+                        ret.insert((r.0.clone(), rule.clone()));
+                    }
+                }
             };
         }
         ret

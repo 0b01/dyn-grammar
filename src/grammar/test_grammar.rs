@@ -329,3 +329,41 @@ fn test_stackoverflow_other_case() {
     );
     assert!(g.build().is_err());
 }
+
+
+#[test]
+fn test_parens() {
+    let mut g = Grammar::new(
+        "S".to_owned(),
+        vec![
+            Rule {
+                name: "S".to_owned(),
+                id: 0,
+                production: vec![
+                    Terminal("L"),
+                    NonTerminal("A".to_owned()),
+                    Terminal("R"),
+                ]
+            },
+            Rule {
+                name: "S".to_owned(),
+                id: 1,
+                production: vec![
+                    Terminal("a")
+                ]
+            },
+            Rule {
+                name: "A".to_owned(),
+                id: 2,
+                production: vec![
+                    NonTerminal("S".to_owned()),
+                    NonTerminal("S".to_owned()),
+                    Epsilon,
+                ]
+            }
+        ]
+    );
+    assert!(g.build().is_ok());
+    let ret = g.parse(sentence!( L, a, a, R ));
+    println!("{:?}", ret);
+}

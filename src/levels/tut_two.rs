@@ -19,10 +19,10 @@ impl Level for TutTwo {
             burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, BottomBun},
             burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, BottomBun},
             burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun }
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, BottomBun},
         ]
     }
 }

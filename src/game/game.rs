@@ -289,12 +289,11 @@ impl Game {
                     self.orders.clear_result();
                 } else{
                     self.orders.selected += 1;
-                }
-
-                if self.continuous {
-                    self.play_burger(ingr)?;
-                } else {
-                    self.stop_burger(ingr)?;
+                    if self.continuous {
+                        self.play_burger(ingr)?;
+                    } else {
+                        self.stop_burger(ingr)?;
+                    }
                 }
             }
         };
