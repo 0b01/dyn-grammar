@@ -3,15 +3,18 @@ use crate::burger::*;
 
 pub struct Orders {
     pub orders: Option<[Burger; 10]>,
+    pub order_result: [bool; 10],
     pub selected: usize,
 }
 
 impl Orders {
     pub fn new() -> Self {
         let orders = None;
+        let order_result = [false; 10];
         Self {
             orders,
             selected: 0,
+            order_result,
         }
     }
 
@@ -29,11 +32,12 @@ impl Orders {
     }
 
     pub fn draw_orders(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
-        let timg = ing.get_img("orderhover").unwrap();
+        let success_img = ing.get_img("ordersuccess").unwrap();
         let fimg = ing.get_img("order").unwrap();
         let selected = ing.get_img("orderselect").unwrap();
         for i in 0..10 {
             let image = if i == self.selected { selected }
+                    else if self.order_result[i] { success_img }
                     else { fimg };
 
             window.draw_ex(&
@@ -59,6 +63,14 @@ impl Orders {
             }
         }
         None
+    }
+
+    pub fn set_success(&mut self, i: usize) {
+        self.order_result[i] = true;
+    }
+
+    pub fn clear_result(&mut self) {
+        self.order_result = [false; 10];
     }
 
 }

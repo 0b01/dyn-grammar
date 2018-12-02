@@ -19,12 +19,12 @@ impl Sprites {
         let mut srcs = Sprites::srcs();
         srcs.extend(vec![
             "ketchupbottle", "mayobottle", "bbqbottle", "ketchup", "mayo", "bbq",
-            "nonterme", "nontermA", "nontermS", "nontermB", "nontermC",
+            /* "nonterme", */ "nontermA", "nontermS", "nontermB", "nontermC",
             "stepup", "stepdown", "stepdisabled",
             "playup", "playdown", "playdisabled",
             "stopup", "stopdown",
             "pointer",
-            "order", "orderhover", "orderselect",
+            "order", "orderhover", "orderselect", "ordersuccess",
             "game_ui", "game_ui_light",
 
         ]);

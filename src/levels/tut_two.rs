@@ -13,16 +13,16 @@ impl Level for TutTwo {
 
     fn orders() -> [Burger; 10] {
         [
-            burger!(TopBun, Cheese, Beef, BottomBun),
-            burger!(Lettuce, Beef, Lettuce),
-            burger!(TopBun, Cheese, Beef, BottomBun),
-            burger!(Lettuce, Beef, Lettuce),
-            burger!(TopBun, Cheese, Beef, BottomBun),
-            burger!(Lettuce, Beef, Lettuce),
-            burger!(TopBun, Cheese, Beef, BottomBun),
-            burger!(Lettuce, Beef, Lettuce),
-            burger!(TopBun, Cheese, Beef, BottomBun),
-            burger!(Lettuce, Beef, Lettuce),
+            burger!{TopBun, Chicken, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
+            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun }
         ]
     }
 }

@@ -5,8 +5,6 @@ use crate::game::{Orders, GameBurgerRule};
 use crate::grammar::*;
 use crate::levels;
 
-
-
 pub struct Game {
     pub rules: Vec<GameBurgerRule>,
     pub burg_anim: Option<BurgerAnimSeq>,
@@ -185,8 +183,8 @@ impl Game {
             }
         };
         let my_bg = abt.to_burger();
-        println!("{:#?}", abt);
-        println!("{:#?}", my_bg);
+        // println!("{:#?}", abt);
+        // println!("{:#?}", my_bg);
 
 
         let anim = BurgerAnimSeq::new(my_bg.clone());
@@ -204,7 +202,7 @@ impl Game {
     }
 
     pub fn play_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
-        println!("fn play burger");
+        // println!("fn play burger");
         self.stop_burger(ingr)?;
         self.build()?;
         ingr.set_duration(0.14)?;
@@ -217,7 +215,7 @@ impl Game {
     }
 
     pub fn stop_burger(&mut self, _ingr: &mut Sprites) -> Result<()> {
-        println!("fn stop burger");
+        // println!("fn stop burger");
         for i in &mut self.rules { i.pointer.clear(); }
         self.rule_stack.clear();
         self.pause = false;
@@ -233,7 +231,7 @@ impl Game {
     }
 
     pub fn step_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
-        println!("fn step burger");
+        // println!("fn step burger");
         if self.pause { return Ok(()) }
         if !self.is_debugging { self.build()? }
         if self.is_anim_playing() { return Ok(()); }
@@ -247,7 +245,7 @@ impl Game {
         }
         let delta = delta.unwrap();
         drop(seq);
-        println!("{:#?}", delta);
+        // println!("{:#?}", delta);
         match delta {
             Incr => {
                 let rule_id = self.rule_stack.last();
@@ -283,9 +281,12 @@ impl Game {
             }
             Success => {
                 println!("SUCCESS!");
+                self.orders.set_success(self.orders.selected);
+
                 if self.orders.selected + 1 == 10 {
                     self.set_level(self.level + 1);
                     self.orders.selected = 0;
+                    self.orders.clear_result();
                 } else{
                     self.orders.selected += 1;
                 }

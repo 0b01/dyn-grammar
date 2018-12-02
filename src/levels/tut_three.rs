@@ -13,16 +13,25 @@ impl Level for TutThree {
 
     fn orders() -> [Burger; 10] {
         [
-            burger!{TopBun, Chicken, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun},
-            burger!{TopBun, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Chicken, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, Fish, BottomBun }
+            burger!(TopBun, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
         ]
     }
 }
+
+
+/*
+
+S -> TopBun, A BottomBun, .
+A -> Ketchup, Mayo, .
+A -> Beef, A .
+
+*/

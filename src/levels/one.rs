@@ -16,16 +16,16 @@ impl Level for One {
 
     fn orders() -> [Burger; 10] {
         [
-            burger!(TopBun, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
-            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun),
+            burger![TopBun, Ketchup, Mayo, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, Beef, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, Beef, Beef, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun],
+            burger![TopBun, Ketchup, Mayo, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, Beef, BottomBun],
         ]
     }
 }

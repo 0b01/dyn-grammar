@@ -73,9 +73,9 @@ impl MainState {
                 BurgerItem::NonTermC => {
                     ing!("nontermC");
                 }
-                BurgerItem::NonTermEpsilon => {
-                    ing!("nonterme");
-                }
+                // BurgerItem::NonTermEpsilon => {
+                //     ing!("nonterme");
+                // }
                 BurgerItem::NonTermS => {
                     ing!("nontermS");
                 }
@@ -127,19 +127,19 @@ impl MainState {
             Ok(())
         })?;
 
-        self.Sprites.execute(|ing| {
-            let image = ing.get_img("nonterme").unwrap();
-            window.draw_ex(&
-                Rectangle::new(
-                    Vector::new(init_x, init_y + 3. * objheight),
-                    Vector::new(32., 32.)
-                ),
-                Img(&image),
-                Transform::scale(Vector::new(3., 3.)),
-                100,
-            );
-            Ok(())
-        })?;
+        // self.Sprites.execute(|ing| {
+        //     let image = ing.get_img("nonterme").unwrap();
+        //     window.draw_ex(&
+        //         Rectangle::new(
+        //             Vector::new(init_x, init_y + 3. * objheight),
+        //             Vector::new(32., 32.)
+        //         ),
+        //         Img(&image),
+        //         Transform::scale(Vector::new(3., 3.)),
+        //         100,
+        //     );
+        //     Ok(())
+        // })?;
 
         self.Sprites.execute(|ing| {
             let image = ing.get_img("nontermA").unwrap();
@@ -301,6 +301,17 @@ impl State for MainState {
 
     fn event(&mut self, event: &Event, window: &mut Window) -> Result<()> {
         match event {
+            Event::Key(Key::Left, ButtonState::Pressed) => {
+                let mut g = self.game.borrow_mut();
+                let level = g.level;
+                if level > 0 { g.set_level(level - 1); }
+            }
+            Event::Key(Key::Right, ButtonState::Pressed) => {
+                let mut g = self.game.borrow_mut();
+                let level = g.level;
+                g.set_level(level + 1);
+            }
+
             Event::MouseButton(
                 MouseButton::Left,
                 ButtonState::Pressed
@@ -422,7 +433,7 @@ fn start_drag_item(mouse: &Vector) -> Option<BurgerItem> {
         ((2. * 100. + init_x, 2. * line_h + init_y, 600., 2. * line_h + fin_y), NonTermB),
         ((3. * 100. + init_x, 2. * line_h + init_y, 700., 2. * line_h + fin_y), NonTermC),
 
-        ((            init_x, 3. * line_h + init_y, 400., 3. * line_h + fin_y), NonTermEpsilon),
+        // ((            init_x, 3. * line_h + init_y, 400., 3. * line_h + fin_y), NonTermEpsilon),
 
         ((580., 550., 580. + 70., 550. + 60.), Ketchup),
         ((580. + 70. * 1., 550., 580. + 70. * 2., 550. + 60.), Mayo),
