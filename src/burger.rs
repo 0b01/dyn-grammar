@@ -202,6 +202,7 @@ impl Burger {
 
 }
 
+#[derive(Clone)]
 pub struct BurgerAnimSeq {
     current_t: f64,
     burger: Burger,

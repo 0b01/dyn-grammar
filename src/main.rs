@@ -27,7 +27,7 @@ struct MainState {
 
     burger: Rc<RefCell<Burger>>,
 
-    burger_seq: Rc<RefCell<BurgerAnimSeq>>,
+    // burger_seq: Rc<RefCell<BurgerAnimSeq>>,
 
     pos_x: f32,
     pos_y: f32,
@@ -269,7 +269,7 @@ impl State for MainState {
         let Sprites = Asset::new(Sprites::new());
 
         let burger = Rc::new(RefCell::new(Burger::new()));
-        let burger_seq = Rc::new(RefCell::new( BurgerAnimSeq::new(burger.borrow().clone()) ));
+        // let burger_seq = Rc::new(RefCell::new( BurgerAnimSeq::new(burger.borrow().clone()) ));
 
         let pos_x = 0.;
         let pos_y = 0.;
@@ -289,10 +289,12 @@ impl State for MainState {
 
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
+        game.borrow_mut().set_burger(&BurgerAnimSeq::new(Burger::new()))?;
+
         Ok(MainState {
             Sprites,
             burger,
-            burger_seq,
+            // burger_seq,
             pos_x,
             pos_y,
             game_ui,
@@ -314,10 +316,10 @@ impl State for MainState {
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
 
-        let burger_seq = Rc::clone(&self.burger_seq);
+        // let burger_seq = Rc::clone(&self.burger_seq);
         let game = Rc::clone(&self.game);
         self.Sprites.execute(|ingr|{
-            burger_seq.borrow_mut().draw(window, ingr)?;
+            // burger_seq.borrow_mut().draw(window, ingr)?;
             game.borrow_mut().draw(window, ingr)?;
             Ok(())
         })?;
@@ -344,14 +346,15 @@ impl State for MainState {
                 self.holding = start_drag_item(&v);
                 self.play_pressed = play_pressed(&v);
 
-                let burger_seq = self.burger_seq.clone();
+                // let burger_seq = self.burger_seq.clone();
                 let game = self.game.clone();
                 if self.play_pressed {
                     self.Sprites.execute(|i| {
-                        burger_seq.borrow_mut().step(i)?;
-                        let mut g = game.borrow().as_grammar();
-                        g.build().unwrap();
-                        println!("{:#?}", g);
+                        // burger_seq.borrow_mut().step(i)?;
+                        game.borrow_mut().step_burger(i)?;
+                        // let mut g = game.borrow().as_grammar();
+                        // g.build().unwrap();
+                        // println!("{:#?}", g);
                         Ok(())
                         // burger_seq.borrow_mut().cont(i)
                     })?;

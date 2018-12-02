@@ -20,6 +20,7 @@ pub struct GameBurgerRule {
 
 pub struct Game {
     rules: Vec<GameBurgerRule>,
+    burger: Option<BurgerAnimSeq>,
 }
 
 impl GameBurgerRule {
@@ -94,7 +95,6 @@ impl GameBurgerRule {
                 100,
             );
         }
-        self.pointer = Some(1);
 
         if self.pointer.is_some() {
             let img = ing.get_img("pointer").unwrap();
@@ -148,6 +148,7 @@ impl Game {
     pub fn new(rules: Vec<GameBurgerRule>) -> Self {
         Self {
             rules,
+            burger: Option::None,
         }
     }
 
@@ -166,7 +167,11 @@ impl Game {
         }
     }
 
-    pub fn draw(&mut self, window: &mut Window, ing: &Sprites) -> Result<()> {
+    pub fn draw(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
+        if self.burger.is_some() {
+            let burger = self.burger.as_mut().unwrap();
+            burger.draw(window, ing);
+        }
         for grammar in &mut self.rules {
             grammar.draw(window, ing)?;
         }
@@ -184,5 +189,17 @@ impl Game {
             BurgerItem::NonTermS.to_str().to_owned(),
             rules,
         )
+    }
+
+    pub fn set_burger(&mut self, b: &BurgerAnimSeq) -> Result<()> {
+        self.burger = Some(b.clone());
+        Ok(())
+    }
+
+    pub fn step_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
+        if self.burger.is_none() { return Ok(()); }
+        let burger_seq = self.burger.as_mut().unwrap();
+        burger_seq.step(ingr);
+        Ok(())
     }
 }
