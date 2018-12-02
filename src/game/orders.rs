@@ -2,13 +2,13 @@ use crate::prelude::*;
 use crate::burger::*;
 
 pub struct Orders {
-    pub orders: Vec<Burger>,
+    pub orders: Option<[Burger; 10]>,
     pub selected: usize,
 }
 
 impl Orders {
     pub fn new() -> Self {
-        let mut orders = vec![];
+        let orders = None;
         Self {
             orders,
             selected: 0,
@@ -22,6 +22,9 @@ impl Orders {
     }
 
     pub fn draw_selected_burger(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
+        if self.orders.is_none() { return Ok(()) }
+        let burger = &self.orders.as_ref().unwrap()[self.selected];
+        burger.draw_order(window, ing)?;
         Ok(())
     }
 
@@ -46,14 +49,16 @@ impl Orders {
         Ok(())
     }
 
-    pub fn mouse_move(&mut self, v: &Vector) {
+    pub fn mouse_move(&mut self, v: &Vector) -> Option<usize> {
         for i in 0..10 {
             if (v.y > 28.453894 && v.y < 66.80449)
             && v.x > (250.59584 + i as f32 * 50.)
             && v.x < (281.54004 + i as f32 * 50.) {
                 self.selected = i;
+                return Some(i);
             }
         }
+        None
     }
 
 }

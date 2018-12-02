@@ -7,6 +7,9 @@ use std::hash::Hash;
 pub enum AbstractBurgerTree<T: Debug + Clone + PartialEq + Hash + Eq> {
     NonTerm((usize, Vec<Box<AbstractBurgerTree<T>>>)),
     Term(Token<T>),
+    IncompleteParse,
+    WrongToken,
+    AdditionalTokens(Box<AbstractBurgerTree<T>>),
 }
 
 #[derive(Debug, Clone)]
@@ -16,6 +19,7 @@ pub enum AnimDelta {
     EnterPtr(usize),
     Noop,
     ExitPtr(usize),
+    PauseIndefinitely,
 }
 
 impl<T: Debug + Clone + PartialEq + Hash + Eq> AbstractBurgerTree<T> {
@@ -38,6 +42,13 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> AbstractBurgerTree<T> {
                     ret.extend(i.to_delta_seq());
                 }
                 ret.push(AnimDelta::ExitPtr(t.0));
+            }
+            IncompleteParse | WrongToken |IncompleteParse => {
+                ret.push(AnimDelta::PauseIndefinitely);
+            }
+            AdditionalTokens(i) => {
+                ret.extend(i.to_delta_seq());
+                ret.push(AnimDelta::PauseIndefinitely);
             }
         }
 

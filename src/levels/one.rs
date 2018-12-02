@@ -3,11 +3,9 @@ use crate::prelude::*;
 /// S -> top cheese beef cheese beef N bottom .
 /// N -> cheese beef cheese beef N .
 /// N -> .
-struct DoubleCheeseburger {
-    examples: Vec<Token<BurgerItem>>,
-}
+pub struct DoubleCheeseburger;
 
-impl DoubleCheeseburger {
+impl Level for DoubleCheeseburger {
     fn name() -> &'static str {
         "DoubleCheeseburger"
     }

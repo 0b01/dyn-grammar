@@ -129,7 +129,8 @@ impl GameBurgerRule {
             return Option::None;
         }
         let mut production = vec![];
-        if self.items.iter().all(|i| *i == None) {production.push(Token::Epsilon)} else {
+        if self.items.iter().all(|i| *i == None) {production.push(Token::Epsilon)}
+        else {
             for i in &self.items {
                 if *i == None {
                     // production.push(Token::Epsilon);

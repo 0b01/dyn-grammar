@@ -7,12 +7,16 @@ use crate::grammar::*;
 
 pub struct Game {
     rules: Vec<GameBurgerRule>,
-    burger: Option<BurgerAnimSeq>,
+    burg_anim: Option<BurgerAnimSeq>,
     orig_burger: Option<BurgerAnimSeq>,
     seq: Option<Vec<AnimDelta>>,
     orders: Orders,
+    level: usize,
 
     rule_stack: Vec<usize>,
+    pause: bool,
+
+    is_debugging: bool,
 
     pub step_pressed: bool,
     pub stop_pressed: bool,
@@ -24,14 +28,17 @@ impl Game {
     pub fn new(rules: Vec<GameBurgerRule>) -> Self {
         Self {
             rules,
-            burger: Option::None,
+            burg_anim: Option::None,
             orig_burger: Option::None,
             orders: Orders::new(),
             seq: Option::None,
+            level: 0,
             rule_stack: Vec::new(),
+            pause: false,
             step_pressed: false,
             stop_pressed: false,
             play_pressed: false,
+            is_debugging: false,
         }
     }
 
@@ -43,6 +50,16 @@ impl Game {
         self.rules.get_mut(idx)
     }
 
+    pub fn set_level(&mut self, i: usize) {
+        self.level = i;
+        match self.level {
+            0 => { self.orders.orders = Some(crate::levels::one::DoubleCheeseburger::orders()); }
+            1 => { self.orders.orders = Some(crate::levels::two::WcGangbang::orders()); }
+            2 => { self.orders.orders = Some(crate::levels::three::LandSeaAndAir::orders()); }
+            _ => unimplemented!(),
+        }
+    }
+
     pub fn drop_item(&mut self, v: &Vector, itm: Option<BurgerItem>) {
         if !self.rule_stack.is_empty() {return;}
         for grammar in &mut self.rules {
@@ -52,8 +69,8 @@ impl Game {
     }
 
     pub fn draw(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
-        if self.burger.is_some() {
-            let burger = self.burger.as_mut().unwrap();
+        if self.burg_anim.is_some() {
+            let burger = self.burg_anim.as_mut().unwrap();
             burger.draw(window, ing)?;
         }
         for grammar in &mut self.rules {
@@ -65,8 +82,7 @@ impl Game {
     }
 
     fn draw_btn(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
-
-        let image = if self.seq.as_ref().unwrap().is_empty() {
+        let image = if self.seq.is_some() && self.seq.as_ref().unwrap().is_empty() {
             ing.get_img("stepdisabled").unwrap()
         } else if self.step_pressed {
             ing.get_img("stepdown").unwrap()
@@ -83,7 +99,7 @@ impl Game {
             100,
         );
 
-        let image = if self.seq.as_ref().unwrap().is_empty() {
+        let image = if self.seq.is_some() && self.seq.as_ref().unwrap().is_empty() {
             ing.get_img("playdisabled").unwrap()
         } else if self.play_pressed {
             ing.get_img("playdown").unwrap()
@@ -133,42 +149,56 @@ impl Game {
         )
     }
 
-    pub fn set_burger(&mut self, b: &BurgerAnimSeq) -> Result<()> {
-        self.orig_burger = Some(b.clone());
-        self.burger = Some(b.clone());
+    pub fn build(&mut self) -> Result<()>{
+
+        let i = self.orders.selected;
+        let bg = &self.orders.orders.as_ref().unwrap()[i];
+        let anim = BurgerAnimSeq::new(bg.clone());
+        self.orig_burger = Some(anim.clone());
+        self.burg_anim = Some(anim.clone());
+
         let mut g = self.as_grammar();
+
         g.build().unwrap();
-        let abt = g.parse(b.burger.toks.clone()).unwrap();
+        let burger = self.burg_anim.as_ref().unwrap().burger.toks.clone();
+        let abt = g.parse(burger).unwrap_or_else(|t|t);
+        // println!("{:#?}", abt);
         self.seq = Some(abt.to_delta_seq());
         Ok(())
     }
 
     pub fn play_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
+        println!("fn play burger");
         if self.seq.as_ref().unwrap().is_empty() { return Ok(()) }
-        let bg = self.burger.as_mut().unwrap();
+        let bg = self.burg_anim.as_mut().unwrap();
         self.seq = Some(Vec::new());
         bg.cont(ingr)
     }
 
-    pub fn stop_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
-        for i in &mut self.rules {
-            i.pointer.clear();
-        }
+    pub fn stop_burger(&mut self, _ingr: &mut Sprites) -> Result<()> {
+        println!("fn stop burger");
+        for i in &mut self.rules { i.pointer.clear(); }
         self.rule_stack.clear();
-        self.burger.as_mut().unwrap().stop(ingr);
+        self.pause = false;
+        self.is_debugging = false;
         self.play_pressed = false;
-        let bg = self.orig_burger.as_ref().unwrap().clone();
-        self.set_burger(&bg)?;
+        self.build()?;
         Ok(())
     }
 
+    pub fn is_anim_playing(&mut self) -> bool {
+        self.burg_anim.as_ref().unwrap().drawing.is_some()
+    }
+
     pub fn step_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
-        if self.burger.as_ref().unwrap().drawing.is_some() { return Ok(()); }
+        println!("fn step burger");
+        if self.pause { return Ok(()) }
+        if !self.is_debugging { self.build()? }
+        if self.is_anim_playing() { return Ok(()); }
         use self::AnimDelta::*;
 
         ingr.set_duration(0.4)?;
 
-        if self.burger.is_none() { return Ok(()); }
         let seq = self.seq.as_mut().unwrap();
         let delta = seq.first().cloned();
         if delta.is_none() {return Ok(())}
@@ -183,11 +213,13 @@ impl Game {
                         let rule = self.get_mut(*rule_id).unwrap();
                         rule.step();
                     }
-                    Option::None => (),
+                    Option::None => {
+                        self.is_debugging = true;
+                    },
                 }
             }
             StepAnim => {
-                let burger_seq = self.burger.as_mut().unwrap();
+                let burger_seq = self.burg_anim.as_mut().unwrap();
                 burger_seq.step(ingr)?;
             }
             EnterPtr(id) => {
@@ -203,6 +235,9 @@ impl Game {
                 let rule = self.get_mut(id).unwrap();
                 rule.pointer.pop();
             },
+            PauseIndefinitely => {
+                self.pause = true;
+            }
         };
         drop(delta);
         let seq = self.seq.as_mut().unwrap();
@@ -212,6 +247,9 @@ impl Game {
     }
 
     pub fn mouse_move(&mut self, v: &Vector) {
-        self.orders.mouse_move(v);
+        match self.orders.mouse_move(v) {
+            Option::None => (),
+            Some(_) => self.build().unwrap(),
+        };
     }
 }

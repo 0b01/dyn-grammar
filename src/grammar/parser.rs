@@ -4,6 +4,8 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::hash::Hash;
 
+type ABT<T> = AbstractBurgerTree<T>;
+
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Rule<T: Debug + Clone + PartialEq + Hash + Eq> {
     pub name: String,
@@ -45,14 +47,15 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
             // check first set clashes
             // println!("{}--------------", name);
             // println!("{:?}", first_set_for_rule);
-            let mut temp_dedup = HashSet::new();
-            for (tok,_) in &first_set_for_rule {
-                // println!("tok: {:?}", tok);
-                if temp_dedup.contains(tok) {
-                    return Err("First/First clash");
-                }
-                temp_dedup.insert(tok.clone());
-            }
+
+            // let mut temp_dedup = HashSet::new();
+            // for (tok,_) in &first_set_for_rule {
+            //     // println!("tok: {:?}", tok);
+            //     if temp_dedup.contains(tok) {
+            //         return Err("First/First clash");
+            //     }
+            //     temp_dedup.insert(tok.clone());
+            // }
             temp.insert(name, first_set_for_rule);
         }
 
@@ -61,24 +64,24 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
         Ok(())
     }
 
-    pub fn parse(&self, sent: Vec<Token<T>>) -> Result<AbstractBurgerTree<T>, &'static str> {
+    pub fn parse(&self, sent: Vec<Token<T>>) -> Result<ABT<T>, ABT<T>> {
         let mut sent = sent;
         let ret = self.parse_aux(&self.start, &mut sent)?;
         if sent.is_empty() {
-            return Ok(ret);
+            Ok(ret)
         } else {
-            return Err("Incomplete parse")
+            Err(AbstractBurgerTree::AdditionalTokens(Box::new(ret)))
         }
     }
 
-    fn parse_aux(&self, name: &str, sent: &mut Vec<Token<T>>) -> Result<AbstractBurgerTree<T>, &'static str> {
+    fn parse_aux(&self, name: &str, sent: &mut Vec<Token<T>>) -> Result<ABT<T>, ABT<T>> {
         let mut sent = sent;
         let firsts = self.first_sets.as_ref().map(|i|i.get(name).unwrap()).unwrap();
-        println!("Parsing rule {} with {:?}", name, sent);
+        // println!("Parsing rule {} with {:?}", name, sent);
 
         let (mut prod, rule_id) = if sent.is_empty() {
             match firsts.iter().find(|prod| prod.0 == Epsilon) {
-                None => { return Err("Does not contain epsilon. 1"); }
+                None => { return Err(AbstractBurgerTree::IncompleteParse); }
                 Some((_,i)) => (i.production.clone(), i.id),
             }
         } else {
@@ -87,33 +90,38 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
                 Some(i) => (i.1.production.clone(), i.1.id),
                 None => // match epsilon
                     match firsts.iter().find(|prod| prod.0 == Epsilon) {
-                        None => { return Err("Does not contain epsilon. 2"); }
+                        None => { return Err(AbstractBurgerTree::IncompleteParse); }
                         Some((_,i)) => (i.production.clone(), i.id),
                     }
             }
         };
-        println!("Found: {:?}", prod);
+        // println!("Found: {:?}", prod);
         self.match_rule(&mut sent, &mut prod, rule_id)
     }
 
-    fn match_rule(&self, sent: &mut Vec<Token<T>>, rule: &mut Vec<Token<T>>, rule_id: usize) -> Result<AbstractBurgerTree<T>, &'static str> {
+    fn match_rule(
+        &self,
+        sent: &mut Vec<Token<T>>,
+        rule: &mut Vec<Token<T>>,
+        rule_id: usize
+    ) -> Result<ABT<T>, ABT<T>> {
         let mut ret = vec![];
         while let Some(t) = rule.get(0) {
             let t = t.clone();
             rule.remove(0);
             let abt = match t {
                 Epsilon => {
-                    println!("Matching Epsilon");
+                    // println!("Matching Epsilon");
                     AbstractBurgerTree::Term(Epsilon)
                 }
                 Terminal(ref term) => {
-                    println!("Matching {:?}", term);
+                    // println!("Matching {:?}", term);
                     if let Some(sent_tok) = sent.get(0) {
                         if sent_tok.clone() == t {
                             sent.remove(0);
                         }
                     } else {
-                        return Err("2")
+                        return Err(AbstractBurgerTree::WrongToken)
                     }
                     AbstractBurgerTree::Term(t)
                 }

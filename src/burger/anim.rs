@@ -85,7 +85,7 @@ impl BurgerAnimSeq {
         self.idx = 0;
         self.static_idx = 0;
         self.drawing = None;
-        ingr.anims.values_mut().map(|a| {
+        let _ =ingr.anims.values_mut().map(|a| {
             a.played = true;
             a.current_t = 0.;
         }).collect::<Vec<_>>();

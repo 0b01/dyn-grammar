@@ -1,9 +1,6 @@
 use crate::prelude::*;
 
-///
-struct LandSeaAndAir {
-    examples: Vec<Token<BurgerItem>>,
-}
+pub struct LandSeaAndAir;
 
 impl Level for LandSeaAndAir {
     fn name() -> &'static str {
@@ -16,16 +13,16 @@ impl Level for LandSeaAndAir {
 
     fn orders() -> [Burger; 10] {
         [
-            burger!(Beef, Chicken),
-            burger!(Beef, Beef, Chicken),
-            burger!(Beef, Fish, Chicken),
-            burger!(Beef, Beef, Beef, Chicken),
-            burger!(Beef, Beef, Fish, Chicken),
-            burger!(Beef, Fish, Fish, Chicken),
-            burger!(Beef, Beef, Beef, Beef, Chicken),
-            burger!(Beef, Beef, Beef, Fish, Chicken),
-            burger!(Beef, Fish, Fish, Fish, Chicken),
-            burger!(Beef, Beef, Beef, Beef, Beef, Chicken),
+            burger!(TopBun, Beef, Chicken, BottomBun),
+            burger!(TopBun, Beef, Beef, Chicken, BottomBun),
+            burger!(TopBun, Beef, Fish, Chicken, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Chicken, BottomBun),
+            burger!(TopBun, Beef, Beef, Fish, Chicken, BottomBun),
+            burger!(TopBun, Beef, Fish, Fish, Chicken, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Chicken, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Fish, Chicken, BottomBun),
+            burger!(TopBun, Beef, Fish, Fish, Fish, Chicken, BottomBun),
+            burger!(TopBun, Beef, Beef, Beef, Beef, Beef, Chicken, BottomBun),
         ]
     }
 }
