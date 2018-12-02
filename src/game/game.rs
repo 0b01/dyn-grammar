@@ -57,8 +57,9 @@ impl Game {
             2 => { self.orders.orders = Some(levels::TutThree::orders()); }
             3 => { self.orders.orders = Some(levels::TutFour::orders()); }
             4 => { self.orders.orders = Some(levels::Two::orders()); }
-            5 => { self.orders.orders = Some(levels::One::orders()); }
-            6 => { self.orders.orders = Some(levels::Three::orders()); }
+            5 => { self.orders.orders = Some(levels::Four::orders()); }
+            6 => { self.orders.orders = Some(levels::One::orders()); }
+            7 => { self.orders.orders = Some(levels::Three::orders()); }
             _ => unimplemented!(),
         }
     }
@@ -309,7 +310,7 @@ impl Game {
         if self.is_debugging { return; }
         match self.orders.mouse_move(v) {
             Option::None => (),
-            Some(_) => self.build().unwrap(),
+            Some(_) => (),
         };
     }
 }
