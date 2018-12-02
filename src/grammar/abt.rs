@@ -1,4 +1,4 @@
-// use crate::prelude::*;
+use crate::prelude::*;
 use crate::grammar::*;
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -22,7 +22,35 @@ pub enum AnimDelta {
     PauseIndefinitely,
 }
 
+impl AbstractBurgerTree<BurgerItem> {
+    pub fn to_burger(&self) -> Burger {
+        let mut bg = Burger::new();
+        bg.toks = self.to_burger_aux();
+        bg
+    }
+
+    fn to_burger_aux(&self) -> Vec<Token<BurgerItem>> {
+        use self::AbstractBurgerTree::*;
+        let mut ret = vec![];
+        match &self {
+            Term(Token::Epsilon) => { }
+            Term(t) => { ret.push(t.clone()); }
+            NonTerm((_,t)) => {
+                for i in t.iter() {
+                    ret.extend(i.to_burger_aux());
+                }
+            }
+            AdditionalTokens(i) => { ret.extend(i.to_burger_aux()); }
+            _ => (),
+        }
+        ret
+    }
+
+
+}
+
 impl<T: Debug + Clone + PartialEq + Hash + Eq> AbstractBurgerTree<T> {
+
     pub fn to_delta_seq(&self) -> Vec<AnimDelta> {
         use self::AbstractBurgerTree::*;
         let mut ret = vec![];

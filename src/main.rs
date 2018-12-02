@@ -266,7 +266,7 @@ impl State for MainState {
         let game = Rc::new(RefCell::new(Game::new(grams)));
 
         // game.borrow_mut().set_burger(&BurgerAnimSeq::new(Burger::new()))?;
-        game.borrow_mut().set_level(1);
+        game.borrow_mut().set_level(0);
 
         Ok(MainState {
             Sprites,
@@ -323,7 +323,7 @@ impl State for MainState {
 
                 let step_pressed = step_pressed(&v);
                 let stop_pressed = stop_pressed(&v);
-                let play_pressed = (self.game.borrow_mut().play_pressed) || play_pressed(&v);
+                let play_pressed = play_pressed(&v);
                 self.game.borrow_mut().step_pressed = step_pressed;
                 self.game.borrow_mut().stop_pressed = stop_pressed;
                 self.game.borrow_mut().play_pressed = play_pressed;
@@ -347,6 +347,7 @@ impl State for MainState {
                 self.holding = None;
                 self.game.borrow_mut().step_pressed = false;
                 self.game.borrow_mut().stop_pressed = false;
+                self.game.borrow_mut().play_pressed = false;
             }
 
             Event::MouseMoved(v) => {

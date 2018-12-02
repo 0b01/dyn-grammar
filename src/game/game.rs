@@ -8,10 +8,10 @@ use crate::grammar::*;
 pub struct Game {
     rules: Vec<GameBurgerRule>,
     burg_anim: Option<BurgerAnimSeq>,
-    orig_burger: Option<BurgerAnimSeq>,
     seq: Option<Vec<AnimDelta>>,
     orders: Orders,
     level: usize,
+    continuous: bool,
 
     rule_stack: Vec<usize>,
     pause: bool,
@@ -29,12 +29,12 @@ impl Game {
         Self {
             rules,
             burg_anim: Option::None,
-            orig_burger: Option::None,
             orders: Orders::new(),
             seq: Option::None,
             level: 0,
             rule_stack: Vec::new(),
             pause: false,
+            continuous: false,
             step_pressed: false,
             stop_pressed: false,
             play_pressed: false,
@@ -73,6 +73,11 @@ impl Game {
             let burger = self.burg_anim.as_mut().unwrap();
             burger.draw(window, ing)?;
         }
+
+        if self.continuous && !self.is_anim_playing() {
+            self.step_burger(ing)?;
+        }
+
         for grammar in &mut self.rules {
             grammar.draw(window, ing)?;
         }
@@ -152,16 +157,24 @@ impl Game {
     pub fn build(&mut self) -> Result<()>{
 
         let i = self.orders.selected;
-        let bg = &self.orders.orders.as_ref().unwrap()[i];
-        let anim = BurgerAnimSeq::new(bg.clone());
-        self.orig_burger = Some(anim.clone());
-        self.burg_anim = Some(anim.clone());
+
+        let canonical_bg = &self.orders.orders.as_ref().unwrap()[i];
+        // let anim = BurgerAnimSeq::new(bg.clone());
+        // self.burg_anim = Some(anim.clone());
 
         let mut g = self.as_grammar();
 
         g.build().unwrap();
-        let burger = self.burg_anim.as_ref().unwrap().burger.toks.clone();
-        let abt = g.parse(burger).unwrap_or_else(|t|t);
+        let abt = g.parse(canonical_bg.toks.clone()).unwrap_or_else(|t|t);
+        let my_bg = abt.to_burger();
+        // println!("{:#?}", abt);
+        // println!("{:#?}", my_bg);
+
+        self.is_correct = &my_bg == canonical_bg;
+
+        let anim = BurgerAnimSeq::new(my_bg.clone());
+        self.burg_anim = Some(anim.clone());
+
         // println!("{:#?}", abt);
         self.seq = Some(abt.to_delta_seq());
         Ok(())
@@ -169,10 +182,15 @@ impl Game {
 
     pub fn play_burger(&mut self, ingr: &mut Sprites) -> Result<()> {
         println!("fn play burger");
-        if self.seq.as_ref().unwrap().is_empty() { return Ok(()) }
-        let bg = self.burg_anim.as_mut().unwrap();
-        self.seq = Some(Vec::new());
-        bg.cont(ingr)
+
+        self.build()?;
+        ingr.set_duration(0.3)?;
+        self.continuous = true;
+
+        if !self.is_anim_playing() {
+            self.step_burger(ingr)?;
+        }
+        Ok(())
     }
 
     pub fn stop_burger(&mut self, _ingr: &mut Sprites) -> Result<()> {
@@ -181,6 +199,7 @@ impl Game {
         self.rule_stack.clear();
         self.pause = false;
         self.is_debugging = false;
+        self.continuous = false;
         self.play_pressed = false;
         self.build()?;
         Ok(())
@@ -201,7 +220,10 @@ impl Game {
 
         let seq = self.seq.as_mut().unwrap();
         let delta = seq.first().cloned();
-        if delta.is_none() {return Ok(())}
+        if delta.is_none() {
+            self.continuous = false;
+            return Ok(())
+        }
         let delta = delta.unwrap();
         drop(seq);
         println!("{:#?}", delta);

@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::grammar::parser::Token;
 use super::BurgerItem;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Burger {
     pub toks: Vec<Token<BurgerItem>>,
 }
