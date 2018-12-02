@@ -9,7 +9,7 @@ pub struct Animation {
     nframes: usize,
     /// in seconds
     duration: f64,
-    current_t: f64,
+    pub current_t: f64,
 }
 
 impl Animation {

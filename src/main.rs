@@ -34,8 +34,6 @@ struct MainState {
     holding: Option<BurgerItem>,
     mouse_down: bool,
 
-    play_pressed: bool,
-
     game: Rc<RefCell<Game>>,
 }
 
@@ -110,31 +108,9 @@ impl MainState {
             Ok(())
         })?;
         self.draw_Sprites(window)?;
-        self.draw_btn(window)?;
         Ok(())
     }
 
-    fn draw_btn(&mut self, window: &mut Window) -> Result<()> {
-        let pressed = self.play_pressed;
-        self.Sprites.execute(|ing| {
-            let image = if pressed {
-                ing.get_img("buttondown").unwrap()
-            } else {
-                ing.get_img("buttonup").unwrap()
-            };
-            window.draw_ex(&
-                Rectangle::new(
-                    Vector::new(600., 380.),
-                    Vector::new(32., 32.)
-                ),
-                Img(&image),
-                Transform::scale(Vector::new(1.5, 1.5)),
-                100,
-            );
-            Ok(())
-        })?;
-        Ok(())
-    }
 
     fn draw_Sprites(&mut self, window: &mut Window) -> Result<()> {
         let objheight = 40.;
@@ -301,7 +277,6 @@ impl State for MainState {
             game,
             holding: None,
             mouse_down: false,
-            play_pressed: false,
         })
     }
 
@@ -344,18 +319,19 @@ impl State for MainState {
                 self.pos_y = v.y;
 
                 self.holding = start_drag_item(&v);
-                self.play_pressed = play_pressed(&v);
+
+                let step_pressed = step_pressed(&v);
+                let stop_pressed = stop_pressed(&v);
+                let play_pressed = (self.game.borrow_mut().play_pressed) || play_pressed(&v);
+                self.game.borrow_mut().step_pressed = step_pressed;
+                self.game.borrow_mut().stop_pressed = stop_pressed;
+                self.game.borrow_mut().play_pressed = play_pressed;
 
                 // let burger_seq = self.burger_seq.clone();
                 let game = self.game.clone();
-                if self.play_pressed {
-                    self.Sprites.execute(|i| {
-                        // burger_seq.borrow_mut().step(i)?;
-                        game.borrow_mut().step_burger(i)?;
-                        // burger_seq.borrow_mut().cont(i)
-                        Ok(())
-                    })?;
-                }
+                if step_pressed { self.Sprites.execute(|i| game.borrow_mut().step_burger(i))?; }
+                if stop_pressed { self.Sprites.execute(|i| game.borrow_mut().stop_burger(i))?; }
+                if play_pressed { self.Sprites.execute(|i| game.borrow_mut().play_burger(i))?; }
                 self.mouse_down = true;
             }
 
@@ -368,7 +344,8 @@ impl State for MainState {
 
                 self.mouse_down = false;
                 self.holding = None;
-                self.play_pressed = false;
+                self.game.borrow_mut().step_pressed = false;
+                self.game.borrow_mut().stop_pressed = false;
             }
 
             Event::MouseMoved(v) => {
@@ -385,7 +362,27 @@ impl State for MainState {
     }
 }
 
+fn stop_pressed(mouse: &Vector) -> bool {
+    let play = (597. + 48. + 48., 376., 638. + 48. + 48., 414.);
+    if mouse.x > play.0 && mouse.y > play.1
+    && mouse.x < play.2 && mouse.y < play.3 {
+        true
+    } else {
+        false
+    }
+}
+
 fn play_pressed(mouse: &Vector) -> bool {
+    let play = (597. + 48., 376., 638. + 48., 414.);
+    if mouse.x > play.0 && mouse.y > play.1
+    && mouse.x < play.2 && mouse.y < play.3 {
+        true
+    } else {
+        false
+    }
+}
+
+fn step_pressed(mouse: &Vector) -> bool {
     let play = (597., 376., 638., 414.);
     if mouse.x > play.0 && mouse.y > play.1
     && mouse.x < play.2 && mouse.y < play.3 {
@@ -399,7 +396,7 @@ fn start_drag_item(mouse: &Vector) -> Option<BurgerItem> {
     use self::BurgerItem::*;
     let init_x = 308.;
     let fin_x = 399.;
-    let init_y = 408.;
+    let init_y = 415.;
     let fin_y = 458.;
     let line_h = 40.;
     let items = vec![

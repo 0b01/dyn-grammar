@@ -208,8 +208,8 @@ pub struct BurgerAnimSeq {
     pub burger: Burger,
     idx: usize,
     static_idx: usize,
-    drawing: Option<BurgerItem>,
-    play_continuous: bool,
+    pub drawing: Option<BurgerItem>,
+    pub play_continuous: bool,
 }
 
 impl BurgerAnimSeq {
@@ -276,9 +276,19 @@ impl BurgerAnimSeq {
         self.idx = 0;
         self.static_idx = 0;
         self.play_continuous = true;
-        ing.set_duration(0.7)?;
-        self.step(ing)?;
-        Ok(())
+        ing.set_duration(0.3)?;
+        self.step(ing)
+    }
+
+    pub fn stop(&mut self, ingr: &mut Sprites) {
+        self.play_continuous = false;
+        self.idx = 0;
+        self.static_idx = 0;
+        self.drawing = None;
+        ingr.anims.values_mut().map(|a| {
+            a.played = true;
+            a.current_t = 0.;
+        }).collect::<Vec<_>>();
     }
 
 }

@@ -2,8 +2,8 @@ use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct Sprites {
-    items: HashMap<String, Image>,
-    anims: HashMap<String, Animation>,
+    pub items: HashMap<String, Image>,
+    pub anims: HashMap<String, Animation>,
 }
 
 impl Sprites {
@@ -19,7 +19,10 @@ impl Sprites {
         let mut srcs = Sprites::srcs();
         srcs.extend(vec![
             "ketchupbottle", "mayobottle", "bbqbottle", "ketchup", "mayo", "bbq",
-            "nonterme", "nontermA", "nontermS", "nontermB", "nontermC", "buttonup", "buttondown",
+            "nonterme", "nontermA", "nontermS", "nontermB", "nontermC",
+            "stepup", "stepdown", "stepdisabled",
+            "playup", "playdown", "playdisabled",
+            "stopup", "stopdown",
             "pointer",
 
         ]);
