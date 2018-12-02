@@ -23,8 +23,6 @@ extern crate quicksilver;
 struct MainState {
     Sprites: Asset<Sprites>,
 
-    game_ui: Asset<Image>,
-
     burger: Rc<RefCell<Burger>>,
 
     // burger_seq: Rc<RefCell<BurgerAnimSeq>>,
@@ -103,10 +101,6 @@ impl MainState {
 
     fn draw_ui(&mut self, window: &mut Window) -> Result<()> {
         // draw main bg
-        self.game_ui.execute(|image| {
-            window.draw(&image.area(), Img(&image));
-            Ok(())
-        })?;
         self.draw_Sprites(window)?;
         Ok(())
     }
@@ -274,7 +268,6 @@ impl State for MainState {
             // burger_seq,
             pos_x,
             pos_y,
-            game_ui,
             game,
             holding: None,
             mouse_down: false,

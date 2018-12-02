@@ -74,6 +74,14 @@ impl Game {
     }
 
     pub fn draw(&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
+
+        let game_ui = if self.is_debugging {
+            ing.get_img("game_ui_light").unwrap()
+        } else {
+            ing.get_img("game_ui").unwrap()
+        };
+        window.draw(&game_ui.area(), Img(&game_ui));
+
         if self.burg_anim.is_some() {
             let burger = self.burg_anim.as_mut().unwrap();
             burger.draw(window, ing)?;
