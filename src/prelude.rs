@@ -2,7 +2,11 @@ use quicksilver;
 
 pub use crate::ingredients::{Sprites};
 pub use crate::animation::Animation;
-pub use crate::burger::{BurgerAnimSeq, Burger};
+pub use crate::burger::{BurgerAnimSeq, Burger, BurgerItem};
+
+pub use crate::grammar::Token;
+pub use crate::levels::Level;
+
 
 pub use quicksilver::{
     Result, Error,

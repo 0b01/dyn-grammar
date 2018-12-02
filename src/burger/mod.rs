@@ -1,6 +1,5 @@
 pub mod burger;
 pub mod anim;
-pub mod levels;
 pub mod items;
 
 pub use self::items::BurgerItem;

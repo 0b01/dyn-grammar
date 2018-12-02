@@ -12,6 +12,7 @@ mod animation;
 mod ingredients;
 mod game;
 mod orders;
+mod levels;
 mod prelude;
 use crate::prelude::*;
 // use self::animation::Animation;
