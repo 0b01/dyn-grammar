@@ -48,6 +48,14 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> Grammar<T> {
                     return Err(AbstractBurgerTree::Cyclic);
                 }
             }
+
+            for tok in &rule.production {
+                if let Token::NonTerminal(n) = tok {
+                    if !self.rules.iter().any(|rule| &rule.name == n) {
+                        return Err(AbstractBurgerTree::UndefinedNonterm);
+                    }
+                }
+            }
         }
 
         for rule in &self.rules {

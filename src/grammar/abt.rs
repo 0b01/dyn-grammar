@@ -9,6 +9,7 @@ pub enum AbstractBurgerTree<T: Debug + Clone + PartialEq + Hash + Eq> {
     Term(Token<T>),
     IncompleteParse,
     WrongToken,
+    UndefinedNonterm,
     Cyclic,
     AdditionalTokens(Box<AbstractBurgerTree<T>>),
 }
@@ -73,7 +74,7 @@ impl<T: Debug + Clone + PartialEq + Hash + Eq> AbstractBurgerTree<T> {
                 }
                 ret.push(AnimDelta::ExitPtr(t.0));
             }
-            IncompleteParse | WrongToken | Cyclic => {
+            IncompleteParse | WrongToken | Cyclic | UndefinedNonterm => {
                 ret.push(AnimDelta::PauseIndefinitely);
             }
             AdditionalTokens(i) => {

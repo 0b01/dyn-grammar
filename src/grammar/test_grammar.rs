@@ -367,3 +367,29 @@ fn test_parens() {
     let ret = g.parse(sentence!( L, a, a, R ));
     println!("{:?}", ret);
 }
+
+#[test]
+fn test_undefined_nonterm() {
+    let mut g = Grammar::new(
+        "S".to_owned(),
+        vec![
+            Rule {
+                name: "S".to_owned(),
+                id: 0,
+                production: vec![
+                    Terminal("L"),
+                    NonTerminal("A".to_owned()),
+                    Terminal("R"),
+                ]
+            },
+            Rule {
+                name: "S".to_owned(),
+                id: 1,
+                production: vec![
+                    Terminal("a")
+                ]
+            },
+        ]
+    );
+    g.build().unwrap();
+}
