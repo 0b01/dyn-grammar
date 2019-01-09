@@ -36,6 +36,18 @@ impl Orders {
         let fimg = ing.get_img("order").unwrap();
         let selected = ing.get_img("orderselect").unwrap();
         for i in 0..10 {
+
+            let image = ing.get_img(&format!("{}", i+1)).unwrap();
+            window.draw_ex(&
+                Rectangle::new(
+                    Vector::new(250. + 50. * i as f32, 30.),
+                    Vector::new(32., 32.)
+                ),
+                Img(&image),
+                Transform::scale(Vector::new(0.5, 0.5)),
+                100,
+            );
+
             let image = if i == self.selected { selected }
                     else if self.order_result[i] { success_img }
                     else { fimg };

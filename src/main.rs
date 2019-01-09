@@ -1,6 +1,6 @@
 //! Save WackDonald's from bankrupcy by putting your compiler construction skills to good use.
 //!
-//! The famouse burger chain is entering the catering space. Help rewrite the recipes with clear and concise grammar.
+//! The famous burger chain is entering the catering space. Help rewrite the recipes with clear and concise grammar.
 
 #![allow(non_snake_case)]
 #![allow(dead_code)]
@@ -274,28 +274,21 @@ impl State for MainState {
     }
 
     fn update(&mut self, window: &mut Window) -> Result<()> {
-        // self.animation.execute(|anim| anim.update(window))?;
         self.Sprites.execute(|ing| ing.update_anim(window))?;
         Ok(())
     }
 
     fn draw(&mut self, window: &mut Window) -> Result<()> {
-        window.clear(Color::CYAN)?;
+        // window.clear(Color::CYAN)?;
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
 
-        // let burger_seq = Rc::clone(&self.burger_seq);
         let game = Rc::clone(&self.game);
         self.Sprites.execute(|ingr|{
-            // burger_seq.borrow_mut().draw(window, ingr)?;
             game.borrow_mut().draw(window, ingr)?;
             Ok(())
         })?;
-
-        // self.burger.draw(window, &mut self.Sprites)?;
-
         Ok(())
-
     }
 
     fn event(&mut self, event: &Event, window: &mut Window) -> Result<()> {
@@ -463,8 +456,8 @@ fn start_drag_item(mouse: &Vector) -> Option<BurgerItem> {
 }
 
 fn main() {
-    run::<MainState>("Image Example", Vector::new(800, 600), Settings {
-        // icon_path: Some("image.png"), // Set the window icon
+    run::<MainState>("McRecursion", Vector::new(800, 600), Settings {
+        // icon_path: Some("order.png"),
         ..Settings::default()
     });
 }

@@ -90,7 +90,7 @@ impl Sprites {
                 items
             });
 
-        let font_imgs = join_all((0..10)
+        let font_imgs = join_all((0..=10)
             .map(|i| {
                 Font::load("fonts/CourierPrime.ttf")
                     .and_then(move |font| {

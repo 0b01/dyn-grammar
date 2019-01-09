@@ -100,21 +100,6 @@ impl Game {
         }
         self.draw_btn(window, ing)?;
         self.orders.draw(window, ing)?;
-        self.draw_level_id(window, ing)?;
-        Ok(())
-    }
-
-    fn draw_level_id (&mut self, window: &mut Window, ing: &mut Sprites) -> Result<()> {
-        let image = ing.get_img(&format!("{}", self.level + 1)).unwrap();
-        window.draw_ex(&
-            Rectangle::new(
-                Vector::new(350., 380.),
-                Vector::new(32., 32.)
-            ),
-            Img(&image),
-            Transform::scale(Vector::new(1.5, 1.5)),
-            100,
-        );
         Ok(())
     }
 

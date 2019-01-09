@@ -5,4 +5,11 @@ authors = ["ricky han <github@rickyhan.com>"]
 edition = "2018"
 
 [dependencies]
-quicksilver = "*"
+
+[dependencies.quicksilver]
+version = "0.3.0"
+default-features = false
+features = [
+    "sounds",
+    "fonts"
+]
