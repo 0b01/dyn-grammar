@@ -25,7 +25,8 @@ struct MainState {
 
     burger: Rc<RefCell<Burger>>,
 
-    // burger_seq: Rc<RefCell<BurgerAnimSeq>>,
+    music: bool,
+    music_time: f64,
 
     pos_x: f32,
     pos_y: f32,
@@ -96,6 +97,29 @@ impl MainState {
                 }
             }
         }
+        Ok(())
+    }
+
+    fn draw_sound(&mut self, window: &mut Window) -> Result<()> {
+        let playing = self.music;
+        self.Sprites.execute(|ing| {
+            let image = if playing {
+                ing.get_img("sound").unwrap()
+            } else {
+                ing.get_img("nosound").unwrap()
+            };
+            window.draw_ex(&
+                Rectangle::new(
+                    Vector::new(770., 20.),
+                    Vector::new(16., 16.)
+                ),
+                Img(&image),
+                Transform::scale(Vector::new(3., 3.)),
+                100,
+            );
+            Ok(())
+        })?;
+
         Ok(())
     }
 
@@ -270,11 +294,19 @@ impl State for MainState {
             game,
             holding: None,
             mouse_down: false,
+            music: false,
+            music_time: 0.,
         })
     }
 
     fn update(&mut self, window: &mut Window) -> Result<()> {
         self.Sprites.execute(|ing| ing.update_anim(window))?;
+        self.music_time += window.update_rate();
+        if self.music_time > 67. * 1000. {
+            self.music_time = 0.;
+            self.music = false;
+        }
+
         Ok(())
     }
 
@@ -282,6 +314,8 @@ impl State for MainState {
         // window.clear(Color::CYAN)?;
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
+
+        self.draw_sound(window)?;
 
         let game = Rc::clone(&self.game);
         self.Sprites.execute(|ingr|{
@@ -310,6 +344,19 @@ impl State for MainState {
             ) => {
 
                 let v = window.mouse().pos();
+                if v.x > 770. && v.y > 30. && v.x < 788. && v.y < 50. {
+                    // play music
+                    if !self.music {
+                        self.music = true;
+                        self.music_time = 0.;
+                        self.Sprites.execute(|i| {
+                            let bg = i.get_sound("bg").unwrap();
+                            bg.set_volume(0.5);
+                            bg.play()?;
+                            Ok(())
+                        })?;
+                    }
+                }
 
                 println!("{:?}", v);
                 self.pos_x = v.x;
@@ -328,9 +375,6 @@ impl State for MainState {
                 let game = self.game.clone();
                 if step_pressed {
                     self.Sprites.execute(|i| {
-                        if !game.borrow_mut().pause {
-                            i.get_sound("click").unwrap().play()?;
-                        }
                         i.set_duration(0.5)?;
                         game.borrow_mut().step_burger(i)
                     })?;
@@ -338,14 +382,20 @@ impl State for MainState {
                 if stop_pressed {
                     self.Sprites.execute(|i| {
                         if !game.borrow_mut().pause {
-                            i.get_sound("click").unwrap().play()?;
+                            let snd = i.get_sound("click").unwrap();
+                            snd.set_volume(0.2);
+                            snd.play()?;
                         }
                         game.borrow_mut().stop_burger(i)
                     })?;
                 }
                 if play_pressed {
                     self.Sprites.execute(|i| {
-                        i.get_sound("click").unwrap().play()?;
+                        if !game.borrow_mut().pause {
+                            let snd = i.get_sound("click").unwrap();
+                            snd.set_volume(0.2);
+                            snd.play()?;
+                        }
                         game.borrow_mut().orders.selected = 0;
                         game.borrow_mut().play_burger(i)?;
                         Ok(())

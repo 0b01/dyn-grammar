@@ -27,6 +27,7 @@ impl Sprites {
             "pointer",
             "order", "orderhover", "orderselect", "ordersuccess",
             "game_ui", "game_ui_light",
+            "nosound", "sound",
 
         ]);
 
@@ -59,7 +60,7 @@ impl Sprites {
                 anims
             });
 
-        let sounds = vec!["click", "success", "switch"];
+        let sounds = vec!["click", "success", "switch", "bg"];
 
         let sound_futs = sounds.into_iter()
             .map(|s|
@@ -123,8 +124,8 @@ impl Sprites {
         self.items.get(name)
     }
 
-    pub fn get_sound(&self, name: &str) -> Option<&Sound> {
-        self.sounds.get(name)
+    pub fn get_sound(&mut self, name: &str) -> Option<&mut Sound> {
+        self.sounds.get_mut(name)
     }
 
 }
