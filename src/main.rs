@@ -21,6 +21,8 @@ use self::game::{Game, GameBurgerRule};
 extern crate quicksilver;
 
 struct MainState {
+    splash: Image,
+
     Sprites: Asset<Sprites>,
 
     burger: Rc<RefCell<Burger>>,
@@ -38,6 +40,10 @@ struct MainState {
 
 
 impl MainState {
+    fn draw_splash(&mut self, window: &mut Window) -> Result<()> {
+        window.draw(&self.splash.area(), Img(&self.splash));
+        Ok(())
+    }
 
     fn draw_dragging(&mut self, window: &mut Window) -> Result<()> {
         if self.holding.is_some() {
@@ -258,6 +264,7 @@ impl State for MainState {
         //         }));
         //     };
         // }
+        let splash = Image::from_bytes(include_bytes!("../static/loading.png"))?;
 
         let Sprites = Asset::new(Sprites::new());
 
@@ -286,6 +293,7 @@ impl State for MainState {
         game.borrow_mut().set_level(0);
 
         Ok(MainState {
+            splash,
             Sprites,
             burger,
             // burger_seq,
@@ -311,7 +319,8 @@ impl State for MainState {
     }
 
     fn draw(&mut self, window: &mut Window) -> Result<()> {
-        // window.clear(Color::CYAN)?;
+        window.clear(Color::CYAN)?;
+        self.draw_splash(window)?;
         self.draw_ui(window)?;
         self.draw_dragging(window)?;
 
