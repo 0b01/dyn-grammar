@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies.quicksilver]
 git = "https://github.com/ryanisaacg/quicksilver.git"
 branch = "development" 
-version = "0.3.0"
+version = "0.3.7"
 default-features = false
 features = [
     "sounds",
